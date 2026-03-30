@@ -2,17 +2,83 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Subject;
+//use App\Models\Subject;
+use App\Models\Program;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SubjectOrderController extends Controller
 {
     /**
-     * Get the original order of subjects as defined in materias.txt
+     * Returns the original pensum per semester
+     * Identic format of the original array for compatibility with the current frontend
+     * "1": ["4200910", "1000004", ...], "2":[...], ...
+     *
+     * If not passes program_id, use the unique active program (total compattibility)
      */
-    public function getOriginalOrder()
+
+    public function getOriginalOrder(Request $request): array
     {
-        return [
+        return $this->resolveProgram($request)->getCurriculumGrouped();
+    }
+
+    /**
+     * Endpoint in JSON format - keeps the original signature of the original route
+     */
+
+    public function getOriginalOrderJson(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->resolveProgram($request)->getCurriculumGrouped()
+        );
+    }
+
+    /**
+     * Return pensum + metadata of the program
+     * New Route: GET /api/programs/{program_id}/curriculum
+     */
+    public function show (Request $request): JsonResponse
+    {
+        $program = $this->resolveProgram($request);
+
+        return response()->json([
+            'program' => [
+                'id' => $program->id,
+                'code' => $program->code,
+                'name' => $program->name,
+                'total_semesters' => $program->total_semesters,
+            ],
+            'curriculum' => $program->getCurriculumGrouped(),
+        ]);
+    }
+
+    /**
+     * List all the active programs
+     * New route: GET /api/programs
+     */
+    public function programs(): JsonResponse
+    {
+        return response()->json(
+            Program::where('is_active', true)
+                ->select(['id', 'code', 'name', 'faculty', 'total_semesters'])
+                ->orderBy('name')
+                ->get()
+        );
+    }
+
+    // ------------------------------------------------------------ -------------------- --------------------
+
+    private function resolveProgram(Request $request): Program
+    {
+        if ($request->filled('program_id')){
+            return Program::where('is_active', true)
+                ->findOrFail($request->integer('program_id'));
+        }
+
+        // If no program_id, return the unique active program
+        return Program::where('is_active', true)->firstOrFail();
+    }
+        /* return [
             1 => [
                 '4200910', // FUNDAMENTOS DE PROGRAMACIÓN
                 '1000004', // CÁLCULO DIFERENCIAL
@@ -70,14 +136,13 @@ class SubjectOrderController extends Controller
                 '4100573', // TRABAJO DE GRADO
                 '4100559', // PRÁCTICA
             ]
-        ];
-    }
-    
+        ]; */
+
     /**
      * Get original order as JSON for JavaScript
      */
-    public function getOriginalOrderJson()
+    /* public function getOriginalOrderJson()
     {
         return response()->json($this->getOriginalOrder());
-    }
+    } */
 }
