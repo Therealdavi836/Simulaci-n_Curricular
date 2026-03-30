@@ -34,6 +34,7 @@ class Subject extends Model
     protected $fillable = [
         'code',
         'name',
+        'program_id',
         'semester',
         'display_order',
         'credits',
@@ -162,4 +163,22 @@ class Subject extends Model
         
         return $creditsByComponent;
     }
+    /**
+     * Program that belongs to this subject
+     */
+
+    public function program(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    /**
+     * Filter subjects per program
+     * Use: Subject::forProgram($programId)->get();
+     */
+    public function scopeForProgram($query, $programId)
+    {
+        return $query->where('program_id', $programId);
+    }
+
 }
