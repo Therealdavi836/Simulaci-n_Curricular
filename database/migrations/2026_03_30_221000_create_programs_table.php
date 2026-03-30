@@ -20,11 +20,11 @@ return new class extends Migration
     {
         Schema::create('programs', function (Blueprint $table) {
             $table->id()->comment('Unique identifier for the academic program');
-            $table->integer('code')->comment('Code of the academic program, e.g., 4046 for ASI');
+            $table->integer('code', 20)->unique()->comment('Code of the academic program, e.g., 4046 for ASI');
             $table->string('name')->comment('Name of the academic program, e.g., Administración de Sistemas Informáticos');
-            $table->string('faculty')->comment('Faculty or department offering the program, e.g., Facultad de Administración');
-            $table->integer('total_semesters')->comment('Duration of the program in semesters, e.g., 10 for ASI');
-            $table->boolean('is_active')->comment('Indicates whether the program is currently active');
+            $table->string('faculty')->nullable()->comment('Faculty or department offering the program, e.g., Facultad de Administración');
+            $table->unsignedTinyInteger('total_semesters')->comment('Duration of the program in semesters, e.g., 10 for ASI');
+            $table->boolean('is_active')->default(true)->comment('Indicates whether the program is currently active');
             $table->timestamps();
         });
     }

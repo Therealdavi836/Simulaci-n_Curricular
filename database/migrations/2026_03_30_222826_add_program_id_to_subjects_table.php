@@ -14,9 +14,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('subjects', function (Blueprint $table) {
-            $table->unsignedBigInteger('program_id')->nullable()->after('id');
-            $table->foreign('program_id')->references('id')->on('programs');
-        });
+            // Nullable para no romper registros existentes antes del seeder
+            $table->foreignId('program_id')
+                  ->nullable()
+                  ->after('code')
+                  ->constrained('programs')
+                  ->nullOnDelete();});
     }
 
     /**
