@@ -81,7 +81,8 @@ setup() {
     # Seed for programs and asignation of subjects to 'ASI' program
     docker-compose exec app php artisan db:seed --class=ProgramSeeder --force
     docker-compose exec app php artisan tinker --execute='$program = \App\Models\Program::where("code","ASI")->first(); $count = \App\Models\Subject::whereNull("program_id")->update(["program_id" => $program->id]); echo "Materias actualizadas: " . $count . PHP_EOL;'
-    docker-compose exec app php artisan db:seed --class=DepartmentUserSeeder --force 
+    docker-compose exec app php artisan db:seed --class=DepartmentUserSeeder --force
+    docker-compose exec app php artisan db:seed --class=UniversidadNacionalSeeder --force
     print_status "Setup complete! Application is running at http://localhost:8080"
 }
 
@@ -158,6 +159,7 @@ seed() {
     docker-compose exec app php artisan db:seed --class=ProgramSeeder --force
     docker-compose exec app php artisan tinker --execute='$program = \App\Models\Program::where("code","ASI")->first(); $count = \App\Models\Subject::whereNull("program_id")->update(["program_id" => $program->id]); echo "Materias actualizadas: " . $count . PHP_EOL;'
     docker-compose exec app php artisan db:seed --class=DepartmentUserSeeder --force
+    docker-compose exec app php artisan db:seed --class=UniversidadNacionalSeeder --force
     print_status "Seeders completed successfully!"
 }
 

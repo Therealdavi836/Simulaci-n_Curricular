@@ -30,7 +30,8 @@ class DatabaseSeeder extends Seeder
             PrerequisitesSeeder::class,
             // StudentSeeder::class, // Commented out - students are imported from CSV
             // StudentCurrentSubjectSeeder::class, // Commented out - will be created during CSV import
-            ProgramSeeder::class, // Seed the program and assign subjects to it
+            ProgramSeeder::class, // Seed the ASI program and assign subjects to it
+            UniversidadNacionalSeeder::class, // Seed the university structure (campus, faculties, programs)
         ]);
     }
 }

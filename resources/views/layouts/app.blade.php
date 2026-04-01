@@ -101,6 +101,20 @@
                         </li>
                     </ul>
 
+                    <!-- Active Career Selector -->
+                    @if(session('program_id'))
+                    <ul class="navbar-nav me-3">
+                        <li class="nav-item">
+                            <button class="btn btn-outline-light btn-sm my-auto"
+                                    onclick="ProgramSelector.requestChange()"
+                                    title="Cambiar carrera">
+                                <i class="fas fa-university me-1"></i>
+                                <span class="d-none d-md-inline">{{ session('program_name', 'Carrera') }}</span>
+                                <i class="fas fa-exchange-alt ms-1 small"></i>
+                            </button>
+                        </li>
+                    </ul>
+                    @endif
                     <!-- User Menu -->
                     <ul class="navbar-nav ms-auto">
                         @auth
@@ -200,9 +214,12 @@
             const ProgramSelector = (() => {
                 let campusData = [];
                 let modal = null;
+                let unsavedModal = null;
 
                 async function init() {
                     modal = new bootstrap.Modal(document.getElementById('programSelectorModal'));
+                    unsavedModal = new bootstrap.Modal(document.getElementById('unsavedChangesModal'));
+
                     const res = await fetch('/api/program-selector');
                     campusData = await res.json();
 
@@ -283,18 +300,95 @@
                     }
                 }
 
+                /**
+                 * Detecta si hay cambios sin guardar en la simulación actual.
+                 * Busca el flag window.hasUnsavedChanges que simulation.js debe exponer.
+                 */
+                function hasUnsavedChanges() {
+                    return typeof window.hasUnsavedChanges !== 'undefined' && window.hasUnsavedChanges === true;
+                }
+
+                /**
+                 * Punto de entrada del botón del navbar.
+                 * Si hay cambios sin guardar muestra el modal de advertencia,
+                 * si no, abre directamente el selector.
+                 */
+                function requestChange() {
+                    if (hasUnsavedChanges()) {
+                        unsavedModal.show();
+                    } else {
+                        open();
+                    }
+                }
+
+                /**
+                 * El usuario eligió descartar cambios y cambiar de carrera.
+                 */
+                function discardAndChange() {
+                    window.hasUnsavedChanges = false;
+                    unsavedModal.hide();
+                    open();
+                }
+
+                /**
+                 * El usuario eligió guardar antes de cambiar.
+                 * Llama a saveCurrentCurriculum() si existe (definida en simulation.js),
+                 * y cuando termina abre el selector.
+                 */
+                async function saveAndChange() {
+                    unsavedModal.hide();
+                    if (typeof window.saveCurrentCurriculum === 'function') {
+                        try {
+                            await window.saveCurrentCurriculum();
+                        } catch (e) {
+                            console.error('Error al guardar:', e);
+                        }
+                    }
+                    open();
+                }
+
                 function open() { modal.show(); }
                 function close() { modal.hide(); }
 
-                return { init, open, close, confirm };
+                return { init, open, close, confirm, requestChange, discardAndChange, saveAndChange };
             })();
 
             document.addEventListener('DOMContentLoaded', () => ProgramSelector.init());
 
-            // Abrir modal si no hay programa en sesión y estamos en rutas que lo requieren
             @if(!session('program_id') && in_array(request()->route()?->getName(), ['simulation.index', 'curriculum.index']))
                 document.addEventListener('DOMContentLoaded', () => ProgramSelector.open());
             @endif
         </script>
+
+        //{{-- Modal confirmación cambio de carrera con cambios pendientes --}}
+        <div class="modal fade" id="unsavedChangesModal" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Cambios sin guardar
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tienes cambios en la malla actual que no han sido guardados.</p>
+                        <p class="mb-0">¿Qué deseas hacer antes de cambiar de carrera?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            <i class="fas fa-arrow-left me-1"></i>Volver
+                        </button>
+                        <button type="button" class="btn btn-danger"
+                                onclick="ProgramSelector.discardAndChange()">
+                            <i class="fas fa-trash me-1"></i>Descartar y cambiar
+                        </button>
+                        <button type="button" class="btn btn-primary"
+                                onclick="ProgramSelector.saveAndChange()">
+                            <i class="fas fa-save me-1"></i>Guardar y cambiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
