@@ -6,8 +6,13 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="main-title">Malla Curricular - Administración de Sistemas Informáticos</h1>
-        
+    <h1 class="main-title" style="font-family: 'Arial', sans-serif; font-size: 24px; font-weight: bold;">
+        Malla Curricular -- {{ session('program_name', 'Administración de Sistemas Informáticos') }}
+        <small class="d-block fs-6 text-muted fw-normal mt-1">
+            {{ session('campus_name') }}{{ session('faculty_name') ? ' · ' . session('faculty_name') : '' }}
+        </small>
+    </h1>
+
         <!-- Legend -->
         <div class="mb-4">
             <div class="d-flex align-items-center gap-4 justify-content-center flex-wrap" style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
@@ -81,19 +86,19 @@
             <div class="row">
                 <div class="col-md-2">
                     <div class="stat-card">
-                        <div class="stat-number">{{ \App\Models\Subject::count() }}</div>
+                        <div class="stat-number">{{ $programStats['total_subjects'] }}</div>
                         <div class="stat-label">Total Materias</div>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stat-card">
-                        <div class="stat-number" id="career-credits">{{ \App\Models\Subject::where('type', '!=', 'nivelacion')->sum('credits') }}</div>
+                        <div class="stat-number" id="career-credits">{{ $programStats['career_creedits'] }}</div>
                         <div class="stat-label">Créditos Carrera</div>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="stat-card">
-                        <div class="stat-number" id="total-credits">{{ \App\Models\Subject::sum('credits') }}</div>
+                        <div class="stat-number" id="total-credits">{{ $programStats['total_credits'] }}</div>
                         <div class="stat-label">Créditos Totales</div>
                     </div>
                 </div>
@@ -175,30 +180,31 @@
         <div class="curriculum-grid">
             @php
                 $subjects = \App\Models\Subject::with(['prerequisites', 'requiredFor'])
+                    ->where('program_id', session('program_id', $currentProgram->Id))
                     ->orderBy('semester')
                     ->orderBy('display_order')
                     ->get();
-                
+
                 // Also load all leveling subjects (no is_active column - all subjects are recognized)
                 $levelingSubjects = \App\Models\LevelingSubject::all();
-                
+
                 $subjectsBySemester = $subjects->groupBy('semester');
             @endphp
 
-            @for ($semester = 1; $semester <= 10; $semester++)
+            @for ($semester = 1; $semester <= $currentProgram->total_semesters; $semester++)
                 <div class="semester-column" data-semester="{{ $semester }}">
                     <div class="semester-title">{{ $semester }}° Semestre</div>
                     <div class="subjects-container subject-list">
                         @if(isset($subjectsBySemester[$semester]))
                             @foreach($subjectsBySemester[$semester] as $subject)
-                                <div class="subject-card {{ $subject->type }}" 
+                                <div class="subject-card {{ $subject->type }}"
                                      draggable="true"
                                      data-subject-id="{{ $subject->code }}"
                                      data-type="{{ $subject->type }}"
                                      data-display-order="{{ $subject->display_order }}"
                                      data-prerequisites="{{ $subject->prerequisites->pluck('code')->implode(',') }}"
                                      data-unlocks="{{ $subject->requiredFor->pluck('code')->implode(',') }}">
-                                    
+
                                     <!-- Header with info boxes -->
                                     <div class="subject-card-header">
                                         <div class="info-box">
@@ -211,12 +217,12 @@
                                             <span class="info-value">{{ $subject->student_hours }}</span>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Body with subject name -->
                                     <div class="subject-card-body">
                                         <div class="subject-name">{{ $subject->name }}</div>
                                     </div>
-                                    
+
                                     <!-- Footer with code and icon -->
                                     <div class="subject-card-footer">
                                         <div class="subject-code">{{ $subject->code }}</div>
