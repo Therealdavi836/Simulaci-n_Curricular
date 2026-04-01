@@ -2,35 +2,38 @@
 
 namespace Database\Seeders;
 
-//use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Subject;
+use App\Models\Campus;
+use App\Models\Faculty;
 use App\Models\Program;
+use App\Models\Subject;
+use App\Models\CurriculumVersion;
 use Illuminate\Database\Seeder;
 
 class ProgramSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // create the only existent program
-        $program = Program::firstOrCreate(
-            ['code' => 'ASI'],
-            [
-                'name' => 'Administración de Sistemas Informáticos',
-                'faculty' => 'Facultad de Administración',
-                'total_semesters' => 10,
-                'is_active' => true,
-            ]
+        // 1. Create headquarters
+        $campus = Campus::firstOrCreate(
+            ['code' => 'MAN'],
+            ['name' => 'Sede Manizales', 'is_active' => true]
         );
 
-        // Assign all the existens subjects of this program
-        $updated = Subject::whereNull('program_Id')
-                          ->update(['program_id' => $program->id]);
-
-        $this->command->info(
-            "Programa '{$program->name}' creado o encontrado. Se asignaron {$updated} materia(s) a este programa."
+        // 2. Create faculty linked to the campus
+        $faculty = Faculty::firstOrCreate(
+            ['code' => 'ING-MAN'],
+            ['campus_id' => $campus->id, 'name' => 'Facultad de Ingeniería y Arquitectura', 'is_active' => true]
         );
+
+        // 3. Update the existing program with the faculty FK
+        $program = Program::where('code', 'ASI')->firstOrFail();
+        $program->update(['faculty_id' => $faculty->id]);
+
+        // 4. Assign program_id to curriculum versions that don't have it
+        CurriculumVersion::whereNull('program_id')
+            ->update(['program_id' => $program->id]);
+
+        $this->command->info("Sede '{$campus->name}', Facultad '{$faculty->name}' creadas.");
+        $this->command->info("Programa '{$program->name}' vinculado correctamente.");
     }
 }
