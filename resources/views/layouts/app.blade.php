@@ -13,26 +13,58 @@
         <link href="{{ asset('css/simulation.css') }}" rel="stylesheet">
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
 
         @stack('styles')
     </head>
+
+    <style>
+        @font-face {
+            font-family: 'AncizarSans';
+            src: url('{{ asset('fonts/AncizarSans-Regular.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'AncizarSans';
+            src: url('{{ asset('fonts/AncizarSans-Bold.ttf') }}') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'AncizarSans', sans-serif !important;
+        }
+    </style>
     <body>
         <!-- Navigation -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand" href="{{ route('simulation.index') }}">
+            <div class="container-fluid px-4">
+
+                <div class="logo">
+                    <a href="https://unal.edu.co" target="_blank">
+                        <img src="http://localhost:8080/images/logo.png" alt="Escudo UNAL" class="unal-logo" style="width: 180px;">
+                    </a>
+                </div>
+
+                <!-- IZQUIERDA: BRAND -->
+                <a class="navbar-brand me-4" href="{{ route('simulation.index') }}">
                     <i class="fas fa-graduation-cap me-2"></i>
                     Simulación Curricular
                 </a>
 
+                <!-- BOTÓN RESPONSIVE -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- CONTENIDO -->
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
+
+                    <!-- CENTRO: MENÚ PRINCIPAL -->
+                    <ul class="navbar-nav">
+
                         <!-- Simulación -->
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('simulation.index') }}">
@@ -43,7 +75,7 @@
 
                         <!-- Gestión de Mallas -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="mallasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="mallasDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-th-list me-1"></i>
                                 Gestión de Mallas
                             </a>
@@ -75,9 +107,9 @@
                             </ul>
                         </li>
 
-                        <!-- Gestión de Estudiantes -->
+                        <!-- Importar -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="estudiantesDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user-graduate me-1"></i>
                                 Importar
                             </a>
@@ -99,13 +131,16 @@
                                 </li>
                             </ul>
                         </li>
+
                     </ul>
 
-                    <!-- Active Career Selector -->
-                    @if(session('program_id'))
-                    <ul class="navbar-nav me-3">
-                        <li class="nav-item">
-                            <button class="btn btn-outline-light btn-sm my-auto"
+                    <!-- DERECHA: ACCIONES + USUARIO -->
+                    <ul class="navbar-nav ms-auto align-items-center">
+
+                        <!-- Selector de carrera -->
+                        @if(session('program_id'))
+                        <li class="nav-item me-2">
+                            <button class="btn btn-outline-light btn-sm"
                                     onclick="ProgramSelector.requestChange()"
                                     title="Cambiar carrera">
                                 <i class="fas fa-university me-1"></i>
@@ -113,44 +148,51 @@
                                 <i class="fas fa-exchange-alt ms-1 small"></i>
                             </button>
                         </li>
-                    </ul>
-                    @endif
-                    <!-- User Menu -->
-                    <ul class="navbar-nav ms-auto">
+                        @endif
+
+                        <!-- Usuario -->
                         @auth
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-1"></i>
-                                    {{ Auth::user()->name }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-user me-2"></i>
-                                            {{ Auth::user()->email }}
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('password.change') }}">
-                                            <i class="fas fa-key me-2"></i>
-                                            Cambiar Contraseña
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="fas fa-sign-out-alt me-2"></i>
-                                                Cerrar Sesión
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>
+                                {{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user me-2"></i>
+                                        {{ Auth::user()->email }}
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('password.change') }}">
+                                        <i class="fas fa-key me-2"></i>
+                                        Cambiar Contraseña
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>
+                                            Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
+
+                            </ul>
+                        </li>
                         @endauth
+
                     </ul>
+
                 </div>
             </div>
         </nav>
