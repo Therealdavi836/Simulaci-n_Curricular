@@ -46,31 +46,31 @@ permissions() {
 # Setup the project
 setup() {
     print_status "Setting up Simulación Curricular project..."
-    
+
     # Check for .env file
     if ! check_env_file; then
         print_error "Please create .env file first"
         exit 1
     fi
-    
+
     # Give execute permissions to all shell scripts
     print_status "Setting execute permissions for shell scripts..."
     chmod +x ./docker.sh
     chmod +x ./docker/init_db.sh
     chmod +x ./docker/php/entrypoint.sh
-    
+
     # Build and start containers
     print_status "Building and starting containers..."
     docker-compose up -d --build
-    
+
     # Wait for services to be ready
     print_status "Waiting for services to be ready..."
     sleep 15
-    
+
     # Run migrations
     print_status "Running migrations..."
     docker-compose exec app php artisan migrate --force
-    
+
     # Run specific seeders (excluding student data)
     print_status "Running seeders..."
     docker-compose exec app php artisan db:seed --class=SubjectSeeder --force
@@ -78,7 +78,10 @@ setup() {
     docker-compose exec app php artisan db:seed --class=LevelingSubjectSeeder --force
     docker-compose exec app php artisan db:seed --class=ElectiveSubjectSeeder --force
     docker-compose exec app php artisan db:seed --class=SubjectAliasSeeder --force
-    
+    # Seed for programs and asignation of subjects to 'ASI' program
+    docker-compose exec app php artisan db:seed --class=ProgramSeeder --force
+    docker-compose exec app php artisan tinker --execute='$program = \App\Models\Program::where("code","ASI")->first(); $count = \App\Models\Subject::whereNull("program_id")->update(["program_id" => $program->id]); echo "Materias actualizadas: " . $count . PHP_EOL;'
+
     print_status "Setup complete! Application is running at http://localhost:8080"
 }
 
@@ -151,6 +154,9 @@ seed() {
     docker-compose exec app php artisan db:seed --class=LevelingSubjectSeeder --force
     docker-compose exec app php artisan db:seed --class=ElectiveSubjectSeeder --force
     docker-compose exec app php artisan db:seed --class=SubjectAliasSeeder --force
+    # Seed for programs and asignation of subjects to 'ASI' program
+    docker-compose exec app php artisan db:seed --class=ProgramSeeder --force
+    docker-compose exec app php artisan tinker --execute='$program = \App\Models\Program::where("code","ASI")->first(); $count = \App\Models\Subject::whereNull("program_id")->update(["program_id" => $program->id]); echo "Materias actualizadas: " . $count . PHP_EOL;'
     print_status "Seeders completed successfully!"
 }
 
