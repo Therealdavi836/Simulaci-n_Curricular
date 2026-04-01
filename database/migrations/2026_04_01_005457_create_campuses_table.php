@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 20)->unique(); // 'MAN', 'BOG', 'MED', etc.
             $table->string('name');               // Sede Manizales, Sede Bogotá, etc.
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

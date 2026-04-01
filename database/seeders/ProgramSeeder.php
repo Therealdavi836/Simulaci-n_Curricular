@@ -26,8 +26,20 @@ class ProgramSeeder extends Seeder
         );
 
         // 3. Update the existing program with the faculty FK
-        $program = Program::where('code', 'ASI')->firstOrFail();
-        $program->update(['faculty_id' => $faculty->id]);
+        $program = Program::firstOrCreate(
+            ['code' => 'ASI'],
+            [
+                'name'            => 'Administración de Sistemas Informáticos',
+                'faculty_id'      => $faculty->id,
+                'total_semesters' => 10,
+                'is_active'       => true,
+            ]
+        );
+
+        // Si ya existía pero sin faculty_id, actualizarlo
+        if (!$program->faculty_id) {
+            $program->update(['faculty_id' => $faculty->id]);
+        }
 
         // 4. Assign program_id to curriculum versions that don't have it
         CurriculumVersion::whereNull('program_id')
