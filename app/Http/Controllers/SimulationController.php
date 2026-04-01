@@ -30,7 +30,7 @@ class SimulationController extends Controller
     private CurriculumPdfService $pdfService;
 
     public function __construct(
-        StudentMetricsService $metricsService = null, 
+        StudentMetricsService $metricsService = null,
         CreditDistributionService $creditService = null,
         CurriculumPdfService $pdfService = null
     )
@@ -46,10 +46,10 @@ class SimulationController extends Controller
     public function analyzeImpact(Request $request)
     {
         $changes = $request->input('changes', []);
-        
+
         // Debug: Log received changes
         \Log::info('Analyzing impact with changes:', ['changes' => $changes]);
-        
+
         // Get all students with their current progress and current subjects
         $students = Student::with([
             'subjects' => function($query) {
@@ -57,7 +57,7 @@ class SimulationController extends Controller
             },
             'currentSubjects.subject'
         ])->get();
-        
+
         $impactAnalysis = [
             'total_students' => $students->count(),
             'affected_students' => 0,
@@ -73,30 +73,30 @@ class SimulationController extends Controller
             'average_progress_change' => 0,
             'details' => []
         ];
-        
+
         $totalPapaChange = 0;
         $totalProgressChange = 0;
         $studentsWithPapaImpact = 0;
         $studentsWithProgressImpact = 0;
-        
+
         foreach ($students as $student) {
             $impact = $this->analyzeStudentImpact($student, $changes);
-            
+
             if ($impact['has_impact']) {
                 $impactAnalysis['affected_students']++;
-                
+
                 if ($impact['has_delay']) {
                     $impactAnalysis['students_with_delays']++;
                 }
-                
+
                 if ($impact['has_gaps']) {
                     $impactAnalysis['students_with_gaps']++;
                 }
-                
+
                 if ($impact['has_prerequisite_issues']) {
                     $impactAnalysis['students_with_prerequisites_issues']++;
                 }
-                
+
                 // Track PAPA impact
                 if (abs($impact['papa_change']) > 0.01) {
                     $impactAnalysis['students_with_papa_impact']++;
@@ -106,7 +106,7 @@ class SimulationController extends Controller
                     // Non-significant but measurable PAPA change
                     $impactAnalysis['students_with_insignificant_papa_impact']++;
                 }
-                
+
                 // Track progress impact
                 if (abs($impact['progress_change']) > 0.1) {
                     $impactAnalysis['students_with_progress_impact']++;
@@ -116,22 +116,22 @@ class SimulationController extends Controller
                     // Non-significant but measurable progress change
                     $impactAnalysis['students_with_insignificant_progress_impact']++;
                 }
-                
+
                 // Get current subjects with names - search in multiple places
                 $currentSubjectsWithNames = $student->currentSubjects->map(function($currentSubject) {
                     $subjectName = null;
                     $subjectCode = $currentSubject->subject_code;
-                    
+
                     // Try 0: Get from student_current_subjects.subject_name (NEW - from import)
                     if ($currentSubject->subject_name) {
                         $subjectName = $currentSubject->subject_name;
                     }
-                    
+
                     // Try 1: Get from direct relationship (subjects table)
                     if (!$subjectName && $currentSubject->subject && $currentSubject->subject->name) {
                         $subjectName = $currentSubject->subject->name;
                     }
-                    
+
                     // Try 2: Look up subject by code directly in subjects table
                     if (!$subjectName) {
                         $subject = Subject::where('code', $subjectCode)->first();
@@ -139,7 +139,7 @@ class SimulationController extends Controller
                             $subjectName = $subject->name;
                         }
                     }
-                    
+
                     // Try 3: Check in academic_histories table
                     if (!$subjectName) {
                         $historyRecord = DB::table('academic_histories')
@@ -148,12 +148,12 @@ class SimulationController extends Controller
                             ->where('subject_name', '!=', '')
                             ->select('subject_name')
                             ->first();
-                        
+
                         if ($historyRecord && $historyRecord->subject_name) {
                             $subjectName = $historyRecord->subject_name;
                         }
                     }
-                    
+
                     // Try 4: Check in student_subject pivot table (historical records)
                     if (!$subjectName) {
                         $pivotSubject = DB::table('student_subject as ss')
@@ -162,18 +162,18 @@ class SimulationController extends Controller
                             ->whereNotNull('s.name')
                             ->select('s.name')
                             ->first();
-                        
+
                         if ($pivotSubject && $pivotSubject->name) {
                             $subjectName = $pivotSubject->name;
                         }
                     }
-                    
+
                     // Try 5: Check if it's an alias
                     if (!$subjectName) {
                         $alias = DB::table('subject_aliases')
                             ->where('alias_code', $subjectCode)
                             ->first();
-                        
+
                         if ($alias) {
                             $mainSubject = Subject::where('code', $alias->subject_code)->first();
                             if ($mainSubject && $mainSubject->name) {
@@ -181,18 +181,18 @@ class SimulationController extends Controller
                             }
                         }
                     }
-                    
+
                     // If still no name found, use a descriptive fallback
                     if (!$subjectName) {
                         $subjectName = 'Materia ' . $subjectCode;
                     }
-                    
+
                     return [
                         'code' => $subjectCode,
                         'name' => $subjectName
                     ];
                 })->toArray();
-                
+
                 $impactAnalysis['details'][] = [
                     'student_id' => $student->id,
                     'student_document' => $student->document,
@@ -209,23 +209,23 @@ class SimulationController extends Controller
                 ];
             }
         }
-        
-        $impactAnalysis['affected_percentage'] = $impactAnalysis['total_students'] > 0 
+
+        $impactAnalysis['affected_percentage'] = $impactAnalysis['total_students'] > 0
             ? round(($impactAnalysis['affected_students'] / $impactAnalysis['total_students']) * 100, 1)
             : 0;
-        
+
         // Calculate average changes
         $impactAnalysis['average_papa_change'] = $studentsWithPapaImpact > 0
             ? round($totalPapaChange / $studentsWithPapaImpact, 2)
             : 0;
-        
+
         $impactAnalysis['average_progress_change'] = $studentsWithProgressImpact > 0
             ? round($totalProgressChange / $studentsWithProgressImpact, 2)
             : 0;
-        
+
         return response()->json($impactAnalysis);
     }
-    
+
     /**
      * Analyze impact on a specific student
      */
@@ -248,12 +248,16 @@ class SimulationController extends Controller
             ],
             'issues' => []
         ];
-        
+
         $passedSubjects = $student->subjects->keyBy('code');
         $currentSubjects = $student->currentSubjects->keyBy('subject_code');
-        $allSubjects = Subject::with('prerequisites', 'requiredFor')->get()->keyBy('code');
+        $programId = session('program_id');
+        $allSubjects = Subject::with('prerequisites', 'requiredFor')
+            ->when($programId, fn($q) => $q->where('program_id', $programId))
+            ->get()
+            ->keyBy('code');
         $studentCurrentSemester = $this->getCurrentSemester($student->progress_percentage);
-        
+
         // Check if there are any 'added' or 'removed' changes that affect career credits
         $hasCareerCreditsChange = false;
         foreach ($changes as $change) {
@@ -274,22 +278,22 @@ class SimulationController extends Controller
                 }
             }
         }
-        
+
         // If there are career credit changes, recalculate progress for this student
         if ($hasCareerCreditsChange) {
             $impact['has_impact'] = true;
-            
+
             // Current career credits (total in the curriculum, excluding leveling)
             $currentCareerCredits = $allSubjects->where('type', '!=', 'nivelacion')->sum('credits');
-            
+
             // Student's passed credits (from DB, already calculated correctly)
             // We can derive this from the current_progress
             $studentPassedCredits = ($impact['current_progress'] / 100) * $currentCareerCredits;
-            
+
             // Projected career credits = current + added - removed (only non-leveling)
             $projectedCareerCredits = $currentCareerCredits;
             $projectedPassedCredits = $studentPassedCredits;
-            
+
             // Apply all changes
             foreach ($changes as $change) {
                 if ($change['type'] === 'added') {
@@ -308,7 +312,7 @@ class SimulationController extends Controller
                             // Removing a subject: total credits decrease, but passed credits stay
                             // Students keep their approved credits in their academic history
                             $projectedCareerCredits -= $removedCredits;
-                            
+
                             // NOTE: We do NOT decrease projectedPassedCredits
                             // Students who passed this subject keep their credits
                             // The university cannot remove credits from their academic record
@@ -316,14 +320,14 @@ class SimulationController extends Controller
                     }
                 }
             }
-            
+
             // Calculate projected progress: passed / projected_total
             if ($projectedCareerCredits > 0) {
                 $projectedProgress = ($projectedPassedCredits / $projectedCareerCredits) * 100;
-                
+
                 $impact['projected_progress'] = round($projectedProgress, 2);
                 $impact['progress_change'] = round($projectedProgress - $impact['current_progress'], 2);
-                
+
                 // Debug info
                 \Log::info("Progress calculation for student {$student->document}", [
                     'current_progress_from_db' => $impact['current_progress'],
@@ -336,47 +340,47 @@ class SimulationController extends Controller
                 ]);
             }
         }
-        
+
         // Track subjects affected by changes
         $affectedSubjectCodes = [];
-        
+
         foreach ($changes as $change) {
             $subjectCode = $change['subject_code'];
-            
+
             // For 'added' changes, the subject won't exist in $allSubjects yet
             // For 'removed' and other changes, the subject should exist
             if (!isset($allSubjects[$subjectCode]) && $change['type'] !== 'added') {
                 continue;
             }
-            
+
             $subject = isset($allSubjects[$subjectCode]) ? $allSubjects[$subjectCode] : null;
-            
+
             // Check if student has taken this subject
             $studentHasSubject = $subject ? isset($passedSubjects[$subjectCode]) : false;
             $studentTakingSubject = isset($currentSubjects[$subjectCode]);
-            
+
             if ($change['type'] === 'semester' && $subject) {
                 $newSemester = intval($change['new_value']);
                 $oldSemester = intval($change['old_value']);
-                
+
                 // Check if student is currently taking this subject
                 if ($studentTakingSubject) {
                     $impact['has_impact'] = true;
                     $impact['has_delay'] = true;
                     $impact['issues'][] = "Está cursando {$subject->name} actualmente. Moverla al semestre {$newSemester} causaría retraso inmediato.";
                 }
-                
+
                 // Check if student passed this subject and it affects their sequence
                 if ($studentHasSubject) {
                     $dependentSubjects = $subject->requiredFor;
-                    
+
                     foreach ($dependentSubjects as $dependent) {
                         if (isset($currentSubjects[$dependent->code])) {
                             $impact['has_impact'] = true;
                             $impact['has_prerequisite_issues'] = true;
                             $impact['issues'][] = "Está cursando {$dependent->name} que requiere {$subject->name}. El cambio afectaría la validez de su inscripción actual.";
                         }
-                        
+
                         // Check if moving prerequisite to later semester blocks planned progression
                         if ($dependent->semester <= $newSemester && $dependent->semester > $oldSemester) {
                             $impact['has_impact'] = true;
@@ -385,12 +389,12 @@ class SimulationController extends Controller
                         }
                     }
                 }
-                
+
                 // Check if student needs this subject for next semester
                 if (!$studentHasSubject && !$studentTakingSubject) {
                     $canTakeNow = $this->canStudentTakeSubject($student, $subject, $passedSubjects);
                     $shouldTakeThisSemester = $subject->semester <= $studentCurrentSemester + 1;
-                    
+
                     if ($canTakeNow && $shouldTakeThisSemester && $newSemester > $studentCurrentSemester + 1) {
                         $impact['has_impact'] = true;
                         $impact['has_delay'] = true;
@@ -398,17 +402,17 @@ class SimulationController extends Controller
                     }
                 }
             }
-            
+
             if ($change['type'] === 'prerequisites' && $subject) {
                 $newPrereqs = explode(',', $change['new_value']);
                 $oldPrereqs = explode(',', $change['old_value']);
                 $newPrereqs = array_map('trim', array_filter($newPrereqs));
                 $oldPrereqs = array_map('trim', array_filter($oldPrereqs));
-                
+
                 // Check if student is currently taking this subject
                 if ($studentTakingSubject) {
                     $missingPrereqs = array_diff($newPrereqs, $passedSubjects->keys()->toArray());
-                    
+
                     if (!empty($missingPrereqs)) {
                         $impact['has_impact'] = true;
                         $impact['has_prerequisite_issues'] = true;
@@ -418,12 +422,12 @@ class SimulationController extends Controller
                         $impact['issues'][] = "Está cursando {$subject->name} pero le faltarían prerrequisitos: {$missingNames}";
                     }
                 }
-                
+
                 // Check if student was planning to take this subject next semester
                 $canTakeWithOldPrereqs = $this->canTakeWithPrerequisites($passedSubjects->keys()->toArray(), $oldPrereqs);
                 $canTakeWithNewPrereqs = $this->canTakeWithPrerequisites($passedSubjects->keys()->toArray(), $newPrereqs);
                 $shouldTakeSoon = $subject->semester <= $studentCurrentSemester + 1;
-                
+
                 if ($canTakeWithOldPrereqs && !$canTakeWithNewPrereqs && $shouldTakeSoon) {
                     $impact['has_impact'] = true;
                     $impact['has_prerequisite_issues'] = true;
@@ -433,12 +437,12 @@ class SimulationController extends Controller
                     })->implode(', ');
                     $impact['issues'][] = "Podría tomar {$subject->name} próximamente, pero los nuevos prerrequisitos ({$missingNames}) lo bloquearían";
                 }
-                
+
                 // Check if additional prerequisites block future progression
                 $addedPrereqs = array_diff($newPrereqs, $oldPrereqs);
                 if (!empty($addedPrereqs)) {
                     $missingFromAdded = array_diff($addedPrereqs, $passedSubjects->keys()->toArray());
-                    
+
                     if (!empty($missingFromAdded) && $subject->semester <= $studentCurrentSemester + 2) {
                         $impact['has_impact'] = true;
                         $impact['has_delay'] = true;
@@ -448,38 +452,38 @@ class SimulationController extends Controller
                         $impact['issues'][] = "Los nuevos prerrequisitos para {$subject->name} ({$missingNames}) retrasarían su progresión";
                     }
                 }
-                
+
                 // Check if removing prerequisites creates new opportunities
                 $removedPrereqs = array_diff($oldPrereqs, $newPrereqs);
                 if (!empty($removedPrereqs) && !$studentTakingSubject && !$studentHasSubject) {
-                    $couldTakeEarlier = $subject->semester > $studentCurrentSemester && 
+                    $couldTakeEarlier = $subject->semester > $studentCurrentSemester &&
                                        $this->canTakeWithPrerequisites($passedSubjects->keys()->toArray(), $newPrereqs);
-                    
+
                     if ($couldTakeEarlier) {
                         $impact['has_impact'] = true;
                         $impact['issues'][] = "Podría tomar {$subject->name} antes de lo planeado debido a menores prerrequisitos";
                     }
                 }
             }
-            
+
             // Handle subject additions - add descriptive message
             if ($change['type'] === 'added') {
                 $addedType = isset($change['new_value']['type']) ? $change['new_value']['type'] : 'profesional';
                 $addedCredits = isset($change['new_value']['credits']) ? intval($change['new_value']['credits']) : 0;
                 $subjectName = isset($change['new_value']['name']) ? $change['new_value']['name'] : $subjectCode;
-                
+
                 if ($addedType !== 'nivelacion') {
                     $impact['issues'][] = "✨ Nueva materia: {$subjectName} ({$addedCredits} créditos) agregada a la malla.";
                 } else {
                     $impact['issues'][] = "✨ Nueva materia de nivelación: {$subjectName} ({$addedCredits} créditos) agregada.";
                 }
             }
-            
+
             // Handle subject removals - add descriptive message
             if ($change['type'] === 'removed' && $subject) {
                 $removedType = $subject->type ?? 'profesional';
                 $removedCredits = $subject->credits ?? 0;
-                
+
                 if ($removedType !== 'nivelacion') {
                     if ($studentHasSubject) {
                         $impact['issues'][] = "Ya aprobó {$subject->name} ({$removedCredits} créditos) que será eliminada. Sus créditos permanecen en su historial académico, aumentando su porcentaje de avance.";
@@ -490,22 +494,22 @@ class SimulationController extends Controller
                     $impact['issues'][] = "Materia de nivelación {$subject->name} eliminada (no afecta avance de carrera).";
                 }
             }
-            
+
             // Track if this change affects subjects the student has taken
             if ($studentHasSubject && $subject) {
                 $affectedSubjectCodes[] = $subjectCode;
             }
         }
-        
+
         // Calculate PAPA and Progress impact if student has affected subjects
         if (!empty($affectedSubjectCodes) || $impact['has_impact']) {
             // For simulation purposes, we'll recalculate assuming changes are applied
             // In reality, we'd need to simulate the modified curriculum
             // For now, we note that credits from affected subjects might change distribution
-            
+
             // Get student's current distribution
             $currentDistribution = $this->creditService->calculateDistribution($student->document);
-            
+
             // Only set projected values if they weren't already calculated
             // (e.g., by 'added' or 'removed' handlers)
             if ($impact['projected_papa'] === 0) {
@@ -514,14 +518,14 @@ class SimulationController extends Controller
             if ($impact['projected_progress'] === 0 && $impact['current_progress'] > 0) {
                 $impact['projected_progress'] = $impact['current_progress'];
             }
-            
+
             // Calculate changes
             $impact['papa_change'] = round($impact['projected_papa'] - $impact['current_papa'], 2);
             $impact['progress_change'] = round($impact['projected_progress'] - $impact['current_progress'], 2);
-            
+
             // Add credit impact details
             $impact['credit_impact'] = [
-                'affected_credits' => count($affectedSubjectCodes) > 0 
+                'affected_credits' => count($affectedSubjectCodes) > 0
                     ? DB::table('student_subject')
                         ->where('student_document', $student->document)
                         ->whereIn('subject_code', $affectedSubjectCodes)
@@ -530,10 +534,10 @@ class SimulationController extends Controller
                 'credits_details' => $currentDistribution['component_usage'] ?? []
             ];
         }
-        
+
         return $impact;
     }
-    
+
     /**
      * Get current semester based on progress percentage
      */
@@ -550,7 +554,7 @@ class SimulationController extends Controller
         if ($progressPercentage >= 10) return 2;
         return 1;
     }
-    
+
     /**
      * Check if student can take a subject with given prerequisites
      */
@@ -559,62 +563,62 @@ class SimulationController extends Controller
         if (empty($prerequisites)) {
             return true;
         }
-        
+
         foreach ($prerequisites as $prereq) {
             if (!in_array($prereq, $passedSubjects)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Apply simulated changes to subjects without modifying database
      */
     private function applySimulatedChanges($subjects, array $changes)
     {
         $simulatedSubjects = $subjects->toArray();
-        
+
         foreach ($changes as $change) {
             $subjectCode = $change['subject_code'];
-            
+
             if (isset($simulatedSubjects[$subjectCode])) {
                 // Change semester if specified
                 if (isset($change['new_semester'])) {
                     $simulatedSubjects[$subjectCode]['semester'] = $change['new_semester'];
                 }
-                
+
                 // Change prerequisites if specified
                 if (isset($change['new_prerequisites'])) {
                     $simulatedSubjects[$subjectCode]['prerequisites'] = $change['new_prerequisites'];
                 }
             }
         }
-        
+
         return collect($simulatedSubjects);
     }
-    
+
     /**
      * Check if student can take a subject with current prerequisites
      */
     private function canStudentTakeSubject(Student $student, $subject, $passedSubjects)
     {
         $prerequisites = $subject->prerequisites ?? [];
-        
+
         if (empty($prerequisites)) {
             return true;
         }
-        
+
         foreach ($prerequisites as $prereq) {
             if (!isset($passedSubjects[$prereq['code']])) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check for semester-related issues (gaps and delays)
      */
@@ -626,27 +630,27 @@ class SimulationController extends Controller
             'gap_issues' => [],
             'delay_issues' => []
         ];
-        
+
         // Analyze student's progression through semesters
         $studentProgress = $this->analyzeStudentProgression($student, $simulatedSubjects);
-        
+
         // Check for gaps (semesters where student can't take any subject)
         $gaps = $this->findProgressionGaps($studentProgress, $passedSubjects);
         if (!empty($gaps)) {
             $issues['has_gaps'] = true;
             $issues['gap_issues'] = $gaps;
         }
-        
+
         // Check for delays (additional semesters needed)
         $delays = $this->findProgressionDelays($studentProgress, $passedSubjects);
         if (!empty($delays)) {
             $issues['has_delays'] = true;
             $issues['delay_issues'] = $delays;
         }
-        
+
         return $issues;
     }
-    
+
     /**
      * Analyze student progression through simulated curriculum
      */
@@ -660,33 +664,33 @@ class SimulationController extends Controller
             'blocked_subjects' => []
         ];
     }
-    
+
     /**
      * Find gaps in student progression
      */
     private function findProgressionGaps($progression, $passedSubjects)
     {
         $gaps = [];
-        
+
         // Simplified gap detection logic
         if (!empty($progression['blocked_subjects'])) {
             $gaps[] = "Materias bloqueadas que podrían crear huecos en la progresión";
         }
-        
+
         return $gaps;
     }
-    
+
     /**
      * Find delays in student progression
      */
     private function findProgressionDelays($progression, $passedSubjects)
     {
         $delays = [];
-        
+
         if ($progression['additional_semesters_needed'] > 0) {
             $delays[] = "Necesita {$progression['additional_semesters_needed']} semestre(s) adicional(es)";
         }
-        
+
         return $delays;
     }
 
@@ -696,7 +700,7 @@ class SimulationController extends Controller
     public function getVersions()
     {
         $versions = \App\Models\CurriculumVersion::orderBy('version_number', 'desc')->get();
-        
+
         return response()->json([
             'success' => true,
             'versions' => $versions
@@ -709,7 +713,7 @@ class SimulationController extends Controller
     public function getVersion($id)
     {
         $version = \App\Models\CurriculumVersion::with('subjects')->findOrFail($id);
-        
+
         return response()->json([
             'success' => true,
             'version' => $version
@@ -747,14 +751,14 @@ class SimulationController extends Controller
             $pdfPath = null;
             $externalCurriculumId = $request->input('external_curriculum_id');
             $reportHtml = $request->input('report_html');
-            
+
             if ($externalCurriculumId) {
                 try {
                     \Log::info("Generando PDF de convalidación", [
                         'external_curriculum_id' => $externalCurriculumId,
                         'has_html' => !empty($reportHtml)
                     ]);
-                    
+
                     // If frontend sends the report HTML, use it (EXACT same report with impact analysis)
                     if (!empty($reportHtml)) {
                         $pdfPath = $this->pdfService->generatePdfFromHtml(
@@ -768,7 +772,7 @@ class SimulationController extends Controller
                             $request->input('curriculum_data')
                         );
                     }
-                    
+
                     \Log::info("PDF generado exitosamente", ['path' => $pdfPath]);
                 } catch (\Exception $e) {
                     \Log::error("Error generando PDF (continuando con guardado)", [
@@ -778,7 +782,7 @@ class SimulationController extends Controller
                     // Continue with save even if PDF generation fails
                 }
             }
-            
+
             // ===== NOW PROCEED WITH DATABASE TRANSACTION =====
             DB::beginTransaction();
 
@@ -786,8 +790,11 @@ class SimulationController extends Controller
             $previousState = [
                 'subjects' => []
             ];
-            
-            $currentSubjects = Subject::with(['prerequisites', 'requiredFor'])->get();
+
+            $programId = session('program_id');
+            $currentSubjects = Subject::with(['prerequisites', 'requiredFor'])
+                ->when($programId, fn($q) => $q->where('program_id', $programId))
+                ->get();
             foreach ($currentSubjects as $subject) {
                 $previousState['subjects'][] = [
                     'code' => $subject->code,
@@ -859,7 +866,7 @@ class SimulationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al guardar la versión: ' . $e->getMessage()
@@ -874,13 +881,13 @@ class SimulationController extends Controller
     {
         $changes = $curriculumData['changes'] ?? [];
         $subjects = $curriculumData['subjects'] ?? [];
-        
+
         \Log::info("Aplicando cambios al currículum principal", [
             'total_changes' => count($changes),
             'total_subjects' => count($subjects),
             'changes' => $changes
         ]);
-        
+
         // DEBUG: Log all prerequisites in the payload
         $allPrereqs = [];
         foreach ($subjects as $subject) {
@@ -889,21 +896,21 @@ class SimulationController extends Controller
             }
         }
         \Log::info("DEBUG - Todos los prerrequisitos en el payload:", $allPrereqs);
-        
+
         // PASO 1: Procesar cambios explícitos del array 'changes'
         foreach ($changes as $change) {
             $subjectCode = $change['subject_code'] ?? null;
             $changeType = $change['type'] ?? null;
-            
+
             if (!$subjectCode || !$changeType) {
                 \Log::warning("Cambio inválido (sin código o tipo)", ['change' => $change]);
                 continue;
             }
-            
+
             if ($changeType === 'added') {
                 // Find the subject data in the subjects array
                 $subjectInfo = collect($subjects)->firstWhere('code', $subjectCode);
-                
+
                 if ($subjectInfo) {
                     $subjectData = [
                         'name' => $subjectInfo['name'] ?? 'Nueva Materia',
@@ -916,13 +923,14 @@ class SimulationController extends Controller
                         'description' => $subjectInfo['description'] ?? null,
                         'display_order' => $subjectInfo['display_order'] ?? 0,
                     ];
-                    
+
                     // Add new subject
+                    $programId = session('program_id');
                     Subject::updateOrCreate(
                         ['code' => $subjectCode],
-                        $subjectData
+                        array_merge($subjectData, ['program_id' => $programId])
                     );
-                    
+
                     // If it's a leveling subject, also add to leveling_subjects table
                     if (($subjectInfo['type'] ?? 'profesional') === 'nivelacion') {
                         \App\Models\LevelingSubject::updateOrCreate(
@@ -936,7 +944,7 @@ class SimulationController extends Controller
                             ]
                         );
                     }
-                    
+
                     \Log::info("Materia agregada (desde changes): {$subjectCode} - {$subjectData['name']}");
                 } else {
                     \Log::warning("Materia agregada no encontrada en subjects array: {$subjectCode}");
@@ -944,39 +952,39 @@ class SimulationController extends Controller
             } elseif ($changeType === 'removed') {
                 // Delete subject from database
                 $subject = Subject::where('code', $subjectCode)->first();
-                
+
                 if ($subject) {
                     \Log::info("Eliminando materia (desde changes): {$subjectCode} - {$subject->name}");
-                    
+
                     // Delete prerequisites relationships
                     $subject->prerequisites()->detach();
                     $subject->requiredFor()->detach();
-                    
+
                     // Delete the subject
                     $deletedCount = $subject->delete();
-                    
+
                     if ($deletedCount > 0) {
                         \Log::info("Materia eliminada exitosamente: {$subjectCode}");
                     }
                 } else {
                     \Log::warning("Materia no encontrada para eliminar: {$subjectCode}");
                 }
-                
+
                 // Note: We don't delete from leveling_subjects - they remain for historical records
             } elseif ($changeType === 'semester') {
                 // Update subject semester
                 $subject = Subject::where('code', $subjectCode)->first();
                 $subjectInfo = collect($subjects)->firstWhere('code', $subjectCode);
-                
+
                 if ($subject && $subjectInfo) {
                     $oldSemester = $subject->semester;
                     $newSemester = $subjectInfo['semester'];
-                    
+
                     $subject->update([
                         'semester' => $newSemester,
                         'display_order' => $subjectInfo['display_order'] ?? $subject->display_order,
                     ]);
-                    
+
                     \Log::info("Semestre cambiado: {$subjectCode} - {$oldSemester} → {$newSemester}");
                 } else {
                     \Log::warning("Materia no encontrada para cambio de semestre: {$subjectCode}");
@@ -987,30 +995,30 @@ class SimulationController extends Controller
                     'subject_code' => $subjectCode,
                     'change_data' => $change
                 ]);
-                
+
                 $subject = Subject::where('code', $subjectCode)->first();
                 $subjectInfo = collect($subjects)->firstWhere('code', $subjectCode);
-                
+
                 if (!$subject) {
                     \Log::error("MATERIA NO ENCONTRADA: {$subjectCode}");
                     continue;
                 }
-                
+
                 if (!$subjectInfo) {
                     \Log::error("MATERIA NO ENCONTRADA EN SUBJECTS ARRAY: {$subjectCode}");
                     continue;
                 }
-                
+
                 $newPrereqs = $subjectInfo['prerequisites'] ?? [];
                 \Log::info("Prerrequisitos en subjectInfo:", ['prereqs' => $newPrereqs]);
-                
+
                 // Ensure all prerequisites are strings and filter out empty values
                 $newPrereqs = array_filter(array_map(function($code) {
                     return trim((string)$code);
                 }, $newPrereqs));
-                
+
                 \Log::info("Prerrequisitos después de filtrar:", ['prereqs' => $newPrereqs]);
-                
+
                 if (empty($newPrereqs)) {
                     // No prerequisites - clear all
                     \Log::info("Limpiando prerrequisitos de {$subjectCode}");
@@ -1019,26 +1027,26 @@ class SimulationController extends Controller
                 } else {
                     try {
                         \Log::info("Buscando materias con códigos:", ['codes' => $newPrereqs]);
-                        
+
                         // Get IDs of prerequisites that actually exist
                         $existingSubjects = Subject::whereIn('code', $newPrereqs)->get();
-                        
+
                         \Log::info("Materias encontradas:", [
                             'count' => $existingSubjects->count(),
                             'codes' => $existingSubjects->pluck('code')->toArray()
                         ]);
-                        
+
                         // IMPORTANT: The relationship uses 'code' not 'id', so we need codes not IDs
                         $prereqCodes = $existingSubjects->pluck('code')->toArray();
-                        
+
                         // Log if some prerequisites were not found
                         $foundCodes = $existingSubjects->pluck('code')->toArray();
                         $missingCodes = array_diff($newPrereqs, $foundCodes);
-                        
+
                         if (!empty($missingCodes)) {
                             \Log::warning("Prerrequisitos no encontrados para {$subjectCode}: " . implode(', ', $missingCodes));
                         }
-                        
+
                         if (empty($prereqCodes)) {
                             \Log::warning("Ningún prerrequisito válido encontrado para {$subjectCode}, limpiando prerrequisitos");
                             $subject->prerequisites()->sync([]);
@@ -1058,10 +1066,10 @@ class SimulationController extends Controller
                 // Update subject data
                 $subject = Subject::where('code', $subjectCode)->first();
                 $subjectInfo = collect($subjects)->firstWhere('code', $subjectCode);
-                
+
                 if ($subject && $subjectInfo) {
                     $updateData = [];
-                    
+
                     // Only update fields that are present in subjectInfo
                     if (isset($subjectInfo['name'])) $updateData['name'] = $subjectInfo['name'];
                     if (isset($subjectInfo['credits'])) $updateData['credits'] = $subjectInfo['credits'];
@@ -1069,9 +1077,9 @@ class SimulationController extends Controller
                     if (isset($subjectInfo['type'])) $updateData['type'] = $subjectInfo['type'];
                     if (isset($subjectInfo['description'])) $updateData['description'] = $subjectInfo['description'];
                     if (isset($subjectInfo['display_order'])) $updateData['display_order'] = $subjectInfo['display_order'];
-                    
+
                     $subject->update($updateData);
-                    
+
                     \Log::info("Materia modificada: {$subjectCode} - " . json_encode($updateData));
                 } else {
                     \Log::warning("Materia no encontrada para modificación: {$subjectCode}");
@@ -1083,25 +1091,25 @@ class SimulationController extends Controller
         // Esto es crucial cuando vienes desde convalidación donde los cambios
         // están marcados con clases CSS (added-subject, removed-subject)
         \Log::info("Procesando flags isAdded/isRemoved en subjects array");
-        
+
         $addedCount = 0;
         $removedCount = 0;
-        
+
         foreach ($subjects as $subjectData) {
             $subjectCode = $subjectData['code'] ?? null;
             if (!$subjectCode) continue;
-            
+
             $isAdded = $subjectData['isAdded'] ?? false;
             $isRemoved = $subjectData['isRemoved'] ?? false;
-            
+
             // Handle isAdded flag (materias nuevas desde convalidación)
             if ($isAdded) {
                 // Check if this subject was already processed in changes array
                 $alreadyProcessed = collect($changes)->contains(function($change) use ($subjectCode) {
-                    return ($change['subject_code'] ?? null) === $subjectCode && 
+                    return ($change['subject_code'] ?? null) === $subjectCode &&
                            ($change['type'] ?? null) === 'added';
                 });
-                
+
                 if (!$alreadyProcessed) {
                     $newSubjectData = [
                         'name' => $subjectData['name'] ?? 'Nueva Materia',
@@ -1114,38 +1122,39 @@ class SimulationController extends Controller
                         'description' => $subjectData['description'] ?? null,
                         'display_order' => $subjectData['display_order'] ?? 0,
                     ];
-                    
+
+                    $programId = session('program_id');
                     Subject::updateOrCreate(
                         ['code' => $subjectCode],
-                        $newSubjectData
+                        array_merge($newSubjectData, ['program_id' => $programId])
                     );
-                    
+
                     \Log::info("Materia agregada (desde isAdded flag): {$subjectCode} - {$newSubjectData['name']}");
                     $addedCount++;
                 }
             }
-            
+
             // Handle isRemoved flag (materias eliminadas desde convalidación)
             if ($isRemoved) {
                 // Check if this subject was already processed in changes array
                 $alreadyProcessed = collect($changes)->contains(function($change) use ($subjectCode) {
-                    return ($change['subject_code'] ?? null) === $subjectCode && 
+                    return ($change['subject_code'] ?? null) === $subjectCode &&
                            ($change['type'] ?? null) === 'removed';
                 });
-                
+
                 if (!$alreadyProcessed) {
                     $subject = Subject::where('code', $subjectCode)->first();
-                    
+
                     if ($subject) {
                         \Log::info("Eliminando materia (desde isRemoved flag): {$subjectCode} - {$subject->name}");
-                        
+
                         // Delete prerequisites relationships
                         $subject->prerequisites()->detach();
                         $subject->requiredFor()->detach();
-                        
+
                         // Delete the subject
                         $deletedCount = $subject->delete();
-                        
+
                         if ($deletedCount > 0) {
                             \Log::info("Materia eliminada exitosamente: {$subjectCode}");
                             $removedCount++;
@@ -1154,7 +1163,7 @@ class SimulationController extends Controller
                 }
             }
         }
-        
+
         \Log::info("Resumen de procesamiento de flags:", [
             'added_from_flags' => $addedCount,
             'removed_from_flags' => $removedCount
@@ -1164,18 +1173,20 @@ class SimulationController extends Controller
         foreach ($subjects as $subjectData) {
             $code = $subjectData['code'] ?? null;
             if (!$code) continue;
-            
+
             // Skip if this subject was removed
             $isRemoved = $subjectData['isRemoved'] ?? false;
             if ($isRemoved) continue;
-            
+
+            $programId = session('program_id');
             Subject::where('code', $code)
+                ->when($programId, fn($q) => $q->where('program_id', $programId))
                 ->update([
                     'display_order' => $subjectData['display_order'] ?? 0,
                     'semester' => $subjectData['semester']
                 ]);
         }
-        
+
         \Log::info("Cambios aplicados exitosamente al currículum principal");
     }
 
@@ -1186,7 +1197,7 @@ class SimulationController extends Controller
     {
         try {
             $version = \App\Models\CurriculumVersion::findOrFail($id);
-            
+
             // Prevent deleting the current version if it's marked as current
             if ($version->is_current) {
                 return response()->json([
@@ -1194,25 +1205,25 @@ class SimulationController extends Controller
                     'message' => 'No puedes eliminar la versión actual activa.'
                 ], 400);
             }
-            
+
             DB::beginTransaction();
-            
+
             // Delete related curriculum_version_subjects
             \App\Models\CurriculumVersionSubject::where('curriculum_version_id', $version->id)->delete();
-            
+
             // Delete the version
             $version->delete();
-            
+
             DB::commit();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => "Versión {$version->version_number} eliminada correctamente"
             ]);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al eliminar la versión: ' . $e->getMessage()
