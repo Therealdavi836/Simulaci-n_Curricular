@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="main-title" style="font-family: 'Arial', sans-serif; font-size: 24px; font-weight: bold;">
+    <h1 class="main-title" style="font-family: 'AncizarSans', sans-serif; font-size: 24px; font-weight: bold;">
         Malla Curricular -- {{ session('program_name', 'Administración de Sistemas Informáticos') }}
         <small class="d-block fs-6 text-muted fw-normal mt-1">
             {{ session('campus_name') }}{{ session('faculty_name') ? ' · ' . session('faculty_name') : '' }}
