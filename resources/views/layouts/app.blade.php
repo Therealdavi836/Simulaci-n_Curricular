@@ -26,11 +26,11 @@
                     <i class="fas fa-graduation-cap me-2"></i>
                     Simulación Curricular
                 </a>
-                
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <!-- Simulación -->
@@ -100,7 +100,7 @@
                             </ul>
                         </li>
                     </ul>
-                    
+
                     <!-- User Menu -->
                     <ul class="navbar-nav ms-auto">
                         @auth
@@ -149,5 +149,152 @@
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         @stack('scripts')
+
+        {{-- Modal selector de programa --}}
+        <div class="modal fade" id="programSelectorModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-university me-2"></i>Seleccionar Carrera
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Sede</label>
+                                <select class="form-select" id="selectorCampus">
+                                    <option value="">Seleccionar sede...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Facultad</label>
+                                <select class="form-select" id="selectorFaculty" disabled>
+                                    <option value="">Seleccionar facultad...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Carrera</label>
+                                <select class="form-select" id="selectorProgram" disabled>
+                                    <option value="">Seleccionar carrera...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="programSelectorError" class="alert alert-danger mt-3 d-none"></div>
+                    </div>
+                    <div class="modal-footer">
+                        @if(session('program_id'))
+                            <button type="button" class="btn btn-outline-secondary" onclick="ProgramSelector.close()">
+                                Cancelar
+                            </button>
+                        @endif
+                        <button type="button" class="btn btn-primary" id="btnConfirmProgram" disabled onclick="ProgramSelector.confirm()">
+                            <i class="fas fa-check me-1"></i>Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const ProgramSelector = (() => {
+                let campusData = [];
+                let modal = null;
+
+                async function init() {
+                    modal = new bootstrap.Modal(document.getElementById('programSelectorModal'));
+                    const res = await fetch('/api/program-selector');
+                    campusData = await res.json();
+
+                    const campusEl = document.getElementById('selectorCampus');
+                    campusData.forEach(c => {
+                        campusEl.insertAdjacentHTML('beforeend', `<option value="${c.id}">${c.name}</option>`);
+                    });
+
+                    campusEl.addEventListener('change', onCampusChange);
+                    document.getElementById('selectorFaculty').addEventListener('change', onFacultyChange);
+                    document.getElementById('selectorProgram').addEventListener('change', () => {
+                        document.getElementById('btnConfirmProgram').disabled =
+                            !document.getElementById('selectorProgram').value;
+                    });
+                }
+
+                function onCampusChange() {
+                    const campusId = parseInt(this.value);
+                    const facultyEl = document.getElementById('selectorFaculty');
+                    const programEl = document.getElementById('selectorProgram');
+
+                    facultyEl.innerHTML = '<option value="">Seleccionar facultad...</option>';
+                    programEl.innerHTML = '<option value="">Seleccionar carrera...</option>';
+                    facultyEl.disabled = !campusId;
+                    programEl.disabled = true;
+                    document.getElementById('btnConfirmProgram').disabled = true;
+
+                    if (!campusId) return;
+                    const campus = campusData.find(c => c.id === campusId);
+                    campus?.faculties.forEach(f => {
+                        facultyEl.insertAdjacentHTML('beforeend', `<option value="${f.id}">${f.name}</option>`);
+                    });
+                }
+
+                function onFacultyChange() {
+                    const campusId = parseInt(document.getElementById('selectorCampus').value);
+                    const facultyId = parseInt(this.value);
+                    const programEl = document.getElementById('selectorProgram');
+
+                    programEl.innerHTML = '<option value="">Seleccionar carrera...</option>';
+                    programEl.disabled = !facultyId;
+                    document.getElementById('btnConfirmProgram').disabled = true;
+
+                    if (!facultyId) return;
+                    const campus = campusData.find(c => c.id === campusId);
+                    const faculty = campus?.faculties.find(f => f.id === facultyId);
+                    faculty?.programs.forEach(p => {
+                        programEl.insertAdjacentHTML('beforeend', `<option value="${p.id}">${p.name}</option>`);
+                    });
+                }
+
+                async function confirm() {
+                    const programId = document.getElementById('selectorProgram').value;
+                    if (!programId) return;
+
+                    const btn = document.getElementById('btnConfirmProgram');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+
+                    const res = await fetch('/api/program-selector', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ program_id: programId })
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        modal.hide();
+                        window.location.reload();
+                    } else {
+                        document.getElementById('programSelectorError').textContent = 'Error al guardar. Intenta de nuevo.';
+                        document.getElementById('programSelectorError').classList.remove('d-none');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i>Confirmar';
+                    }
+                }
+
+                function open() { modal.show(); }
+                function close() { modal.hide(); }
+
+                return { init, open, close, confirm };
+            })();
+
+            document.addEventListener('DOMContentLoaded', () => ProgramSelector.init());
+
+            // Abrir modal si no hay programa en sesión y estamos en rutas que lo requieren
+            @if(!session('program_id') && in_array(request()->route()?->getName(), ['simulation.index', 'curriculum.index']))
+                document.addEventListener('DOMContentLoaded', () => ProgramSelector.open());
+            @endif
+        </script>
     </body>
 </html>
