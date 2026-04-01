@@ -12,9 +12,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link href="{{ asset('css/simulation.css') }}" rel="stylesheet">
 
-        <!-- Fonts -->
-
-
         @stack('styles')
     </head>
 
