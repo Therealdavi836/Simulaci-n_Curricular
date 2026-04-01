@@ -40,6 +40,26 @@ class SimulationController extends Controller
         $this->pdfService = $pdfService ?? new CurriculumPdfService();
     }
 
+    public function index()
+    {
+        $programId = session('program_id');
+
+        $currentProgram = $programId
+            ? \App\Models\Program::where('is_active', true)->findOrFail($programId)
+            : \App\Models\Program::where('is_active', true)->firstOrFail();
+
+        $programStats = [
+            'total_subjects' => \App\Models\Subject::where('program_id', $currentProgram->id)->count(),
+            'career_credits' => \App\Models\Subject::where('program_id', $currentProgram->id)
+                                    ->where('type', '!=', 'nivelacion')->sum('credits'),
+            'total_credits'  => \App\Models\Subject::where('program_id', $currentProgram->id)->sum('credits'),
+        ];
+
+        $levelingSubjects = \App\Models\LevelingSubject::all();
+
+        return view('simulation.index', compact('currentProgram', 'programStats', 'levelingSubjects'));
+    }
+
     /**
      * Analyze the impact of curriculum changes on students
      */

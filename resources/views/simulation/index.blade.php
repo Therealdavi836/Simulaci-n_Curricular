@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-md-2">
                     <div class="stat-card">
-                        <div class="stat-number" id="career-credits">{{ $programStats['career_creedits'] }}</div>
+                        <div class="stat-number" id="career-credits">{{ $programStats['career_credits'] }}</div>
                         <div class="stat-label">Créditos Carrera</div>
                     </div>
                 </div>

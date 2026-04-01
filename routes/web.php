@@ -19,9 +19,7 @@ Route::get('/', function () {
 // Protected routes - require authentication and password change check
 Route::middleware(['auth', \App\Http\Middleware\CheckMustChangePassword::class])->group(function () {
     // Simulation routes
-    Route::get('/simulation', function () {
-        return view('simulation.index');
-    })->name('simulation.index');
+    Route::get('/simulation', [SimulationController::class, 'index'])->name('simulation.index');
 
     Route::post('/simulation/analyze-impact', [SimulationController::class, 'analyzeImpact'])->name('simulation.analyzeImpact');
     Route::get('/simulation/original-order', [SubjectOrderController::class, 'getOriginalOrderJson'])->name('simulation.originalOrder');

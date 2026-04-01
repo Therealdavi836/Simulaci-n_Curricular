@@ -21,8 +21,8 @@ class ProgramSeeder extends Seeder
 
         // 2. Create faculty linked to the campus
         $faculty = Faculty::firstOrCreate(
-            ['code' => 'ING-MAN'],
-            ['campus_id' => $campus->id, 'name' => 'Facultad de Ingeniería y Arquitectura', 'is_active' => true]
+            ['code' => 'ADMON-MAN'],
+            ['campus_id' => $campus->id, 'name' => 'Facultad de Administración', 'is_active' => true]
         );
 
         // 3. Update the existing program with the faculty FK
