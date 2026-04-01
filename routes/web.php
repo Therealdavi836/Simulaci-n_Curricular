@@ -9,6 +9,7 @@ use App\Http\Controllers\AcademicHistoryController;
 use App\Http\Controllers\ElectiveSubjectController;
 use App\Http\Controllers\LevelingSubjectController;
 use App\Http\Controllers\SubjectAliasController;
+use App\Http\Controllers\ProgramSelectorController;
 
 // Redirect root to login
 Route::get('/', function () {
@@ -24,7 +25,7 @@ Route::middleware(['auth', \App\Http\Middleware\CheckMustChangePassword::class])
 
     Route::post('/simulation/analyze-impact', [SimulationController::class, 'analyzeImpact'])->name('simulation.analyzeImpact');
     Route::get('/simulation/original-order', [SubjectOrderController::class, 'getOriginalOrderJson'])->name('simulation.originalOrder');
-    // New routes — just it adds, doesn't replace anything, so no compatibility issues
+    // New routes — just adds, doesn't replace anything, so no compatibility issues
     Route::prefix('api')->name('api.')->group(function () {
         Route::get('/programs',
             [SubjectOrderController::class, 'programs']
@@ -33,6 +34,10 @@ Route::middleware(['auth', \App\Http\Middleware\CheckMustChangePassword::class])
         Route::get('/programs/{program_id}/curriculum',
             [SubjectOrderController::class, 'show']
         )->name('programs.curriculum');
+
+        Route::get('/program-selector',  [ProgramSelectorController::class, 'index'])->name('program-selector.index');
+        Route::post('/program-selector', [ProgramSelectorController::class, 'select'])->name('program-selector.select');
+        Route::delete('/program-selector', [ProgramSelectorController::class, 'clear'])->name('program-selector.clear');
     });
 
 
