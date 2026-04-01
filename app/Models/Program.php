@@ -11,7 +11,7 @@ class Program extends Model
      protected $fillable = [
         'code',
         'name',
-        'faculty',
+        'faculty_id',
         'total_semesters',
         'is_active',
     ];
@@ -44,5 +44,10 @@ class Program extends Model
                     ->groupBy('semester')
                     ->map(fn($group) => $group->pluck('code')->all())
                     ->all();
+    }
+
+    public function faculty(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Faculty::class);
     }
 }

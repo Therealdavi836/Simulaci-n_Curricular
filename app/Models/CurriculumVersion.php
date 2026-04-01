@@ -11,6 +11,7 @@ class CurriculumVersion extends Model
     protected $fillable = [
         'version_number',
         'user_id',
+        'program_id',
         'description',
         'is_current',
         'curriculum_data',
@@ -51,7 +52,7 @@ class CurriculumVersion extends Model
     public static function getNextVersionNumber(): string
     {
         $latest = static::orderBy('version_number', 'desc')->first();
-        
+
         if (!$latest) {
             return '1.0';
         }
@@ -78,9 +79,14 @@ class CurriculumVersion extends Model
     {
         // Unset all other versions
         static::where('is_current', true)->update(['is_current' => false]);
-        
+
         // Set this as current
         $this->is_current = true;
         $this->save();
+    }
+
+    public function program(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Program::class);
     }
 }
