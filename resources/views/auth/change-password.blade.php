@@ -30,7 +30,7 @@
     </style>
 
     <body class="gradient-animation min-h-screen flex items-center justify-center p-4">
-        <div class="change-password-card glass-effect rounded-2xl shadow-2xl w-full max-w-md p-8">
+        <div class="change-password-card rounded-2xl shadow-2xl w-full max-w-md p-8" style="background-color: white">
             <!-- Icono de Advertencia -->
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 mb-4 shadow-lg pulse-warning">

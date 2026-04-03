@@ -6,17 +6,21 @@
  * @param {string} type - Subject type from data-type attribute
  * @returns {boolean} - True if subject is leveling
  */
+
+// Global flag of unsaved changes, comsupted by the programSelector on the navbar
+window.hasUnsavedChanges = false;
+
 function isLevelingSubject(code, type = null) {
     // Check if type is explicitly 'nivelacion'
     if (type === 'nivelacion') {
         return true;
     }
-    
+
     // Check if code is in leveling subjects list (loaded from database)
     if (window.levelingSubjectsCodes && Array.isArray(window.levelingSubjectsCodes)) {
         return window.levelingSubjectsCodes.includes(code);
     }
-    
+
     return false;
 }
 
@@ -52,7 +56,7 @@ function showAlertModal(message, type = 'info', title = null) {
 
     const config = typeConfig[type] || typeConfig.info;
     const modalTitle = title || config.defaultTitle;
-    
+
     const modalHtml = `
         <div class="modal fade" id="alertModal" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered">
@@ -76,7 +80,7 @@ function showAlertModal(message, type = 'info', title = null) {
             </div>
         </div>
     `;
-    
+
     // Remove existing alert modal if any
     const existingModal = document.getElementById('alertModal');
     if (existingModal) {
@@ -86,18 +90,18 @@ function showAlertModal(message, type = 'info', title = null) {
         }
         existingModal.remove();
     }
-    
+
     // Add modal to body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Show modal
     const modalElement = document.getElementById('alertModal');
     const modal = new bootstrap.Modal(modalElement);
-    
+
     modalElement.addEventListener('hidden.bs.modal', function () {
         modalElement.remove();
     });
-    
+
     modal.show();
 }
 
@@ -132,7 +136,7 @@ function showConfirmModal(message, onConfirm, type = 'warning', title = null, co
 
     const config = typeConfig[type] || typeConfig.warning;
     const modalTitle = title || config.defaultTitle;
-    
+
     const modalHtml = `
         <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered">
@@ -159,7 +163,7 @@ function showConfirmModal(message, onConfirm, type = 'warning', title = null, co
             </div>
         </div>
     `;
-    
+
     // Remove existing confirm modal if any
     const existingModal = document.getElementById('confirmModal');
     if (existingModal) {
@@ -169,14 +173,14 @@ function showConfirmModal(message, onConfirm, type = 'warning', title = null, co
         }
         existingModal.remove();
     }
-    
+
     // Add modal to body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Show modal
     const modalElement = document.getElementById('confirmModal');
     const modal = new bootstrap.Modal(modalElement);
-    
+
     // Handle confirm button
     document.getElementById('confirmModalBtn').addEventListener('click', function() {
         modal.hide();
@@ -184,11 +188,11 @@ function showConfirmModal(message, onConfirm, type = 'warning', title = null, co
             onConfirm();
         }
     });
-    
+
     modalElement.addEventListener('hidden.bs.modal', function () {
         modalElement.remove();
     });
-    
+
     modal.show();
 }
 
@@ -215,7 +219,7 @@ function showPromptModal(message, onSubmit, title = 'Entrada Requerida', placeho
                     <div class="modal-body">
                         <p class="mb-3" style="white-space: pre-line;">${message}</p>
                         <div class="form-group">
-                            <textarea class="form-control" id="promptModalInput" rows="3" 
+                            <textarea class="form-control" id="promptModalInput" rows="3"
                                       placeholder="${placeholder}">${defaultValue}</textarea>
                         </div>
                     </div>
@@ -231,7 +235,7 @@ function showPromptModal(message, onSubmit, title = 'Entrada Requerida', placeho
             </div>
         </div>
     `;
-    
+
     // Remove existing prompt modal if any
     const existingModal = document.getElementById('promptModal');
     if (existingModal) {
@@ -241,15 +245,15 @@ function showPromptModal(message, onSubmit, title = 'Entrada Requerida', placeho
         }
         existingModal.remove();
     }
-    
+
     // Add modal to body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Show modal
     const modalElement = document.getElementById('promptModal');
     const modal = new bootstrap.Modal(modalElement);
     const inputElement = document.getElementById('promptModalInput');
-    
+
     // Handle submit button
     document.getElementById('promptModalSubmitBtn').addEventListener('click', function() {
         const value = inputElement.value.trim();
@@ -258,7 +262,7 @@ function showPromptModal(message, onSubmit, title = 'Entrada Requerida', placeho
             onSubmit(value);
         }
     });
-    
+
     // Handle Enter key
     inputElement.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -266,13 +270,13 @@ function showPromptModal(message, onSubmit, title = 'Entrada Requerida', placeho
             document.getElementById('promptModalSubmitBtn').click();
         }
     });
-    
+
     modalElement.addEventListener('hidden.bs.modal', function () {
         modalElement.remove();
     });
-    
+
     modal.show();
-    
+
     // Focus input after modal is shown
     modalElement.addEventListener('shown.bs.modal', function () {
         inputElement.focus();
@@ -313,9 +317,9 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
                             <label for="securityConfirmInput" class="form-label fw-bold">
                                 Confirmación de seguridad:
                             </label>
-                            <input type="text" 
-                                   class="form-control form-control-lg" 
-                                   id="securityConfirmInput" 
+                            <input type="text"
+                                   class="form-control form-control-lg"
+                                   id="securityConfirmInput"
                                    placeholder="Escribe '${requiredText}' para confirmar"
                                    autocomplete="off"
                                    spellcheck="false">
@@ -339,7 +343,7 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
             </div>
         </div>
     `;
-    
+
     // Remove existing modal if any
     const existingModal = document.getElementById('securityConfirmModal');
     if (existingModal) {
@@ -349,17 +353,17 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
         }
         existingModal.remove();
     }
-    
+
     // Add modal to body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Show modal
     const modalElement = document.getElementById('securityConfirmModal');
     const modal = new bootstrap.Modal(modalElement);
     const inputElement = document.getElementById('securityConfirmInput');
     const confirmBtn = document.getElementById('securityConfirmBtn');
     const errorDiv = document.getElementById('securityConfirmError');
-    
+
     // Validate input in real-time
     inputElement.addEventListener('input', function() {
         const value = inputElement.value;
@@ -376,7 +380,7 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
             }
         }
     });
-    
+
     // Handle submit button
     confirmBtn.addEventListener('click', function() {
         const value = inputElement.value;
@@ -391,7 +395,7 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
             inputElement.focus();
         }
     });
-    
+
     // Handle Enter key
     inputElement.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -404,13 +408,13 @@ function showSecurityConfirmModal(message, onConfirm, requiredText = 'GUARDAR', 
             }
         }
     });
-    
+
     modalElement.addEventListener('hidden.bs.modal', function () {
         modalElement.remove();
     });
-    
+
     modal.show();
-    
+
     // Focus input after modal is shown
     modalElement.addEventListener('shown.bs.modal', function () {
         inputElement.focus();
@@ -439,10 +443,10 @@ window.exportModifiedCurriculum = function() {
 
 window.showComponentCredits = function() {
     console.log('showComponentCredits called');
-    
+
     // Calculate credits by component from current curriculum
     const subjects = document.querySelectorAll('.subject-card');
-    
+
     const credits = {
         'optativa_profesional': 0,
         'fundamental': 0,
@@ -452,13 +456,13 @@ window.showComponentCredits = function() {
         'trabajo_grado': 0,
         'nivelacion': 0
     };
-    
+
     subjects.forEach(card => {
         const type = card.dataset.type;
         const creditsElement = card.querySelector('.info-box:nth-child(1)');
         if (creditsElement && type) {
             const creditValue = parseInt(creditsElement.textContent) || 0;
-            
+
             // Map types to components
             if (type === 'optativa_profesional') {
                 credits.optativa_profesional += creditValue;
@@ -477,13 +481,13 @@ window.showComponentCredits = function() {
             }
         }
     });
-    
+
     // Calculate totals
-    const total = credits.optativa_profesional + credits.fundamental + 
-                 credits.optativa_fundamentacion + credits.profesional + 
+    const total = credits.optativa_profesional + credits.fundamental +
+                 credits.optativa_fundamentacion + credits.profesional +
                  credits.libre_eleccion + credits.trabajo_grado;
     const grandTotal = total + credits.nivelacion;
-    
+
     // Update modal content
     document.getElementById('credit-optativa-profesional').textContent = credits.optativa_profesional;
     document.getElementById('credit-fundamental').textContent = credits.fundamental;
@@ -494,7 +498,7 @@ window.showComponentCredits = function() {
     document.getElementById('credit-total').textContent = total;
     document.getElementById('credit-nivelacion').textContent = credits.nivelacion;
     document.getElementById('credit-grand-total').textContent = grandTotal;
-    
+
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('componentCreditsModal'));
     modal.show();
@@ -507,19 +511,19 @@ document.addEventListener('DOMContentLoaded', function() {
     let draggedCard = null;
     let simulationChanges = [];
     let originalCurriculum = {};
-    
+
     // Global variables for credits
     let careerCredits = 0;  // Credits excluding leveling subjects
     let totalCredits = 0;   // All credits including leveling
-    
+
     // ============================================
     // PERSISTENT STORAGE SYSTEM (localStorage)
     // ============================================
-    
+
     const STORAGE_KEY = 'simulation_temporary_changes';
     const CURRICULUM_ID = 'simulation'; // Fixed ID for the main simulation
     const BASE_VERSION_KEY = 'current_base_curriculum_version';
-    
+
     // Get or initialize the base curriculum version
     function getBaseCurriculumVersion() {
         try {
@@ -543,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
-    
+
     // Update the base curriculum version
     function updateBaseCurriculumVersion(versionData) {
         try {
@@ -553,16 +557,16 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error updating base curriculum version:', error);
         }
     }
-    
+
     // Add a convalidation to the current base version
     function addConvalidationToBaseVersion(curriculumId, redirectUrl) {
         try {
             const baseVersion = getBaseCurriculumVersion();
             if (!baseVersion) return;
-            
+
             // Check if this convalidation already exists
             const existingIndex = baseVersion.convalidations.findIndex(c => c.curriculum_id === curriculumId);
-            
+
             if (existingIndex >= 0) {
                 // Update existing convalidation
                 baseVersion.convalidations[existingIndex] = {
@@ -581,13 +585,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 console.log('➕ Added new convalidation to base version:', curriculumId);
             }
-            
+
             updateBaseCurriculumVersion(baseVersion);
         } catch (error) {
             console.error('Error adding convalidation to base version:', error);
         }
     }
-    
+
     // Create a new base curriculum version (when saving permanently)
     function createNewBaseCurriculumVersion(versionNumber, versionId, description) {
         try {
@@ -606,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
-    
+
     // Save changes to localStorage
     function saveChangesToStorage() {
         try {
@@ -624,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error guardando cambios:', error);
         }
     }
-    
+
     // Load changes from localStorage
     function loadChangesFromStorage() {
         try {
@@ -632,21 +636,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!stored) {
                 return null;
             }
-            
+
             const storageData = JSON.parse(stored);
-            
+
             // Verify it's for the same curriculum
             if (storageData.curriculumId !== CURRICULUM_ID) {
                 return null;
             }
-            
+
             return storageData.changes;
         } catch (error) {
             console.error('Error cargando cambios:', error);
             return null;
         }
     }
-    
+
     // Clear changes from localStorage
     function clearStoredChanges() {
         try {
@@ -654,17 +658,18 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('current_external_curriculum_id');
             localStorage.removeItem('convalidation_redirect_url');
             // NOTE: We do NOT remove BASE_VERSION_KEY - it persists across sessions
+            window.hasUnsavedChanges = false; // Reset unsaved changes flag
         } catch (error) {
             console.error('Error limpiando cambios:', error);
         }
     }
-    
+
     // Get all convalidations for the current base version
     function getCurrentBaseConvalidations() {
         const baseVersion = getBaseCurriculumVersion();
         return baseVersion ? baseVersion.convalidations : [];
     }
-    
+
     // Display base version info in the UI (optional - can be called from console or UI)
     window.showBaseVersionInfo = function() {
         const baseVersion = getBaseCurriculumVersion();
@@ -672,14 +677,14 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('No base version found');
             return;
         }
-        
+
         console.group(' Información de Versión Base');
         console.log('Versión:', baseVersion.version_number);
         console.log('ID:', baseVersion.version_id);
         console.log('Descripción:', baseVersion.description);
         console.log('Creada:', new Date(baseVersion.created_at).toLocaleString('es-ES'));
         console.log('Convalidaciones vinculadas:', baseVersion.convalidations.length);
-        
+
         if (baseVersion.convalidations.length > 0) {
             console.group('Lista de Convalidaciones:');
             baseVersion.convalidations.forEach((conv, index) => {
@@ -694,10 +699,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.groupEnd();
         }
         console.groupEnd();
-        
+
         return baseVersion;
     };
-    
+
     // Clear all convalidations from current base version (useful for testing/debugging)
     window.clearBaseVersionConvalidations = function() {
         const baseVersion = getBaseCurriculumVersion();
@@ -705,19 +710,19 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('No base version found');
             return false;
         }
-        
+
         const count = baseVersion.convalidations.length;
         if (count === 0) {
             console.log('No hay convalidaciones para limpiar');
             return true;
         }
-        
+
         baseVersion.convalidations = [];
         updateBaseCurriculumVersion(baseVersion);
         console.log(`${count} convalidación(es) eliminada(s) de la versión base ${baseVersion.version_number}`);
         return true;
     };
-    
+
     // Initialize total credits from all visible cards
     function initializeTotalCredits() {
         careerCredits = 0;
@@ -725,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let removedCount = 0;
         let removedCareerCredits = 0;
         let removedTotalCredits = 0;
-        
+
         document.querySelectorAll('.subject-card').forEach(card => {
             const creditsElement = card.querySelector('.info-box:first-child .info-value');
             if (creditsElement) {
@@ -733,10 +738,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const subjectCode = card.dataset.subjectId;
                 const subjectType = card.dataset.type;
                 const isLeveling = isLevelingSubject(subjectCode, subjectType);
-                
+
                 // Check if subject is marked as removed
                 const isRemoved = card.classList.contains('removed-subject');
-                
+
                 if (isRemoved) {
                     // Track removed subjects for logging only
                     removedCount++;
@@ -748,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     // ONLY count non-removed subjects
                     totalCredits += credits;
-                    
+
                     // Leveling subjects only count in total, not career
                     if (!isLeveling) {
                         careerCredits += credits;
@@ -756,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-        
+
         if (removedCount > 0) {
             console.log(`Credit calculation:`);
             console.log(`   Total credits (excluding removed): ${totalCredits}`);
@@ -764,15 +769,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`   Removed from total: ${removedTotalCredits} (${removedCount} subjects)`);
             console.log(`   Removed from career: ${removedCareerCredits}`);
         }
-        
+
         updateCreditsDisplay();
     }
-    
+
     // Update credits display
     function updateCreditsDisplay() {
         const careerCreditsElement = document.getElementById('career-credits');
         const totalCreditsElement = document.getElementById('total-credits');
-        
+
         if (careerCreditsElement) {
             careerCreditsElement.textContent = careerCredits;
         }
@@ -780,10 +785,10 @@ document.addEventListener('DOMContentLoaded', function() {
             totalCreditsElement.textContent = totalCredits;
         }
     }
-    
+
     // Initialize on page load
     initializeTotalCredits();
-    
+
     // Initialize base curriculum version on page load
     const currentBaseVersion = getBaseCurriculumVersion();
     console.log('Versión base actual:', currentBaseVersion);
@@ -791,23 +796,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentBaseVersion.convalidations.length > 0) {
         console.log('Convalidaciones:', currentBaseVersion.convalidations);
     }
-    
+
     // Restore temporary changes from localStorage
     restoreTemporaryChanges();
-    
+
     // Function to restore changes from localStorage
     function restoreTemporaryChanges() {
         const storedChanges = loadChangesFromStorage();
         if (!storedChanges || storedChanges.length === 0) {
             return;
         }
-        
+
         simulationChanges = storedChanges;
-        
+
+        // 🔥 FIX
+        window.hasUnsavedChanges = true;
+
         // Apply visual changes to the DOM
         storedChanges.forEach(change => {
             const card = document.querySelector(`[data-subject-id="${change.subject_code}"]`);
-            
+
             switch(change.type) {
                 case 'added':
                     // Mark card as added (green border)
@@ -817,7 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Card doesn't exist, need to recreate it
                         if (change.new_value && change.new_value.semester) {
                             const data = change.new_value;
-                            
+
                             // Recreate the card
                             const newCard = createSubjectCard(
                                 change.subject_code,
@@ -831,15 +839,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 data.type || 'profesional',
                                 data.isRequired !== false
                             );
-                            
+
                             // Add to the appropriate semester
                             const semesterColumn = document.querySelector(`[data-semester="${data.semester}"] .subject-list`);
                             if (semesterColumn) {
                                 semesterColumn.appendChild(newCard);
-                                
+
                                 // Enable drag and drop
                                 enableDragAndDropForCard(newCard);
-                                
+
                                 // Update credits
                                 const isLeveling = isLevelingSubject(change.subject_code, data.type);
                                 totalCredits += (data.credits || 0);
@@ -850,45 +858,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     break;
-                    
+
                 case 'removed':
                     // Apply removal preview style
                     if (card) {
                         applyRemovedStyle(card);
                     }
                     break;
-                    
+
                 case 'semester':
                     // Move card to new semester
                     if (card && change.new_value && change.old_value) {
                         const newSemester = change.new_value;
                         const oldSemester = change.old_value;
-                        
+
                         const newSemesterColumn = document.querySelector(`[data-semester="${newSemester}"] .subject-list`);
                         const oldSemesterColumn = document.querySelector(`[data-semester="${oldSemester}"] .subject-list`);
-                        
+
                         if (newSemesterColumn) {
                             // Move card to new location
                             newSemesterColumn.appendChild(card);
                             card.classList.add('moved-subject'); // Mark as moved to different semester
-                            
+
                             // Create ghost copy in original location
                             if (oldSemesterColumn) {
                                 const subjectCode = change.subject_code;
-                                
+
                                 // Remove any existing ghost for this subject
                                 const existingGhost = oldSemesterColumn.querySelector(`[data-ghost-of="${subjectCode}"]`);
                                 if (existingGhost) {
                                     existingGhost.remove();
                                 }
-                                
+
                                 // Clone the card to create a ghost
                                 const ghostCard = card.cloneNode(true);
                                 ghostCard.classList.add('moved-ghost');
                                 ghostCard.classList.remove('moved-subject'); // Remove blue style from ghost
                                 ghostCard.dataset.ghostOf = subjectCode; // Mark as ghost
                                 ghostCard.draggable = false; // Can't drag the ghost
-                                
+
                                 // Make the semester badge semi-transparent
                                 const ghostBadge = ghostCard.querySelector('.semester-badge');
                                 if (ghostBadge) {
@@ -896,14 +904,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                     // Keep original semester number in ghost
                                     ghostBadge.textContent = `Semestre ${oldSemester}`;
                                 }
-                                
+
                                 // Insert the ghost in old location
                                 oldSemesterColumn.appendChild(ghostCard);
                             }
                         }
                     }
                     break;
-                    
+
                 case 'prerequisites':
                     // Update prerequisites display
                     if (card) {
@@ -911,54 +919,54 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.dataset.prerequisites = change.new_value;
                     }
                     break;
-                    
+
                 case 'edit':
                     // Subject was edited (name, credits, hours, etc.)
                     if (card && change.new_value) {
                         const data = change.new_value;
-                        
+
                         // Update card UI with edited values
                         if (data.name) {
                             const nameElement = card.querySelector('.subject-name');
                             if (nameElement) nameElement.textContent = data.name;
                         }
-                        
+
                         if (data.credits) {
                             const creditsElement = card.querySelector('.subject-card-header .info-box:nth-child(1) .info-value');
                             if (creditsElement) creditsElement.textContent = data.credits;
                         }
-                        
+
                         if (data.classroom_hours !== undefined) {
                             const classroomElement = card.querySelector('.subject-card-header .info-box:nth-child(2) .info-value');
                             if (classroomElement) classroomElement.textContent = data.classroom_hours;
                         }
-                        
+
                         if (data.student_hours !== undefined) {
                             const studentElement = card.querySelector('.subject-card-header .info-box:nth-child(3) .info-value');
                             if (studentElement) studentElement.textContent = data.student_hours;
                         }
-                        
+
                         if (data.description !== undefined) {
                             card.title = data.description;
                         }
-                        
+
                         // Mark as edited
                         card.classList.add('edited-subject');
                     }
                     break;
-                    
+
                 case 'display_order':
                     // Update display order in dataset (actual reordering happens after all changes)
                     if (card && change.new_value) {
                         card.dataset.displayOrder = change.new_value;
                     }
                     break;
-                    
+
                 case 'semester_order':
                     // Restore complete semester order (new approach)
                     if (change.semester && change.new_value) {
                         const orderMap = change.new_value;
-                        
+
                         // Apply display_order to all cards in the order map
                         Object.keys(orderMap).forEach(subjectCode => {
                             const card = document.querySelector(`[data-subject-id="${subjectCode}"]`);
@@ -970,38 +978,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
             }
         });
-        
+
         // After applying all changes, reorder cards based on display_order
         reorderCardsFromDisplayOrder();
-        
+
         // CRITICAL: Recalculate credits after restoring changes
         // This ensures removed subjects are excluded from totals
         initializeTotalCredits();
-        
+
         // Update credits display
         updateCreditsDisplay();
-        
+
         // Update status display
         updateSimulationStatus();
-        
+
         // Update unlocks relationships
         updateUnlocksRelationships();
     }
-    
+
     // Robust modal cleanup function
     function cleanupModal(modalElement) {
         if (!modalElement) return;
-        
+
         try {
             // Clean up Bootstrap modal instance
             const modalInstance = bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) {
                 modalInstance.dispose();
             }
-            
+
             // Remove the modal element
             modalElement.remove();
-            
+
             // Additional cleanup: remove any orphaned backdrops
             const backdrops = document.querySelectorAll('.modal-backdrop');
             backdrops.forEach(backdrop => {
@@ -1011,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.warn('Error removing backdrop:', e);
                 }
             });
-            
+
             // Clean up body classes if no more modals exist
             const remainingModals = document.querySelectorAll('.modal');
             if (remainingModals.length === 0) {
@@ -1019,12 +1027,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.style.paddingRight = '';
                 document.body.style.overflow = '';
             }
-            
+
         } catch (e) {
             console.warn('Error during modal cleanup:', e);
         }
     }
-    
+
     // Store original curriculum state
     function storeOriginalCurriculum() {
         // First, get the original order from server
@@ -1033,20 +1041,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(originalOrder => {
                 // Store the original order for reset
                 window.originalOrder = originalOrder;
-                
+
                 // Store current state
                 subjectCards.forEach(card => {
                     const subjectId = card.dataset.subjectId;
                     const semester = card.closest('.semester-column').dataset.semester;
                     const prerequisites = card.dataset.prerequisites.split(',').filter(p => p.trim());
-                    
+
                     originalCurriculum[subjectId] = {
                         semester: semester,
                         prerequisites: prerequisites,
                         element: card
                     };
                 });
-                
+
                 console.log('Original curriculum stored with proper order');
             })
             .catch(error => {
@@ -1056,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const subjectId = card.dataset.subjectId;
                     const semester = card.closest('.semester-column').dataset.semester;
                     const prerequisites = card.dataset.prerequisites.split(',').filter(p => p.trim());
-                    
+
                     originalCurriculum[subjectId] = {
                         semester: semester,
                         prerequisites: prerequisites,
@@ -1065,32 +1073,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
     }
-    
+
     // Initialize simulation system
     function initializeSimulation() {
         storeOriginalCurriculum();
-        
+
         // Initialize display_order for all existing cards
         for (let semester = 1; semester <= 10; semester++) {
             const column = document.querySelector(`.semester-column[data-semester="${semester}"]`);
             if (!column) continue;
-            
+
             const cards = Array.from(column.querySelectorAll('.subject-card'));
             cards.forEach((card, index) => {
                 // Set display_order based on current DOM position (0-indexed)
                 card.dataset.displayOrder = index;
             });
         }
-        
+
         enableDragAndDrop();
-        
+
         // Debug: Log initialization
         console.log('Simulation initialized');
         console.log('Subject cards found:', subjectCards.length);
         console.log('Semester columns found:', document.querySelectorAll('.semester-column').length);
         console.log('Original curriculum stored:', Object.keys(originalCurriculum).length);
     }
-    
+
     // Function to clear all highlights
     function clearHighlights() {
         subjectCards.forEach(card => {
@@ -1098,25 +1106,25 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset transform to avoid visual issues
             card.style.transform = '';
         });
-        
+
         // Also clear highlights from dynamically added cards
         document.querySelectorAll('.subject-card').forEach(card => {
             card.classList.remove('prerequisite', 'unlocks', 'selected');
             card.style.transform = '';
         });
     }
-    
+
     // Function to highlight prerequisites and unlocks
     function highlightRelated(card) {
         clearHighlights();
-        
+
         const subjectId = card.dataset.subjectId;
         const prerequisites = card.dataset.prerequisites.split(',').filter(p => p.trim());
         const unlocks = card.dataset.unlocks.split(',').filter(u => u.trim());
-        
+
         // Highlight the selected card
         card.classList.add('selected');
-        
+
         // Highlight prerequisites (yellow) - exclude ghosts
         prerequisites.forEach(prereqCode => {
             const prereqCard = document.querySelector(`[data-subject-id="${prereqCode}"]:not(.moved-ghost)`);
@@ -1124,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 prereqCard.classList.add('prerequisite');
             }
         });
-        
+
         // Highlight unlocks (blue) - exclude ghosts
         unlocks.forEach(unlockCode => {
             const unlockCard = document.querySelector(`[data-subject-id="${unlockCode}"]:not(.moved-ghost)`);
@@ -1132,38 +1140,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 unlockCard.classList.add('unlocks');
             }
         });
-        
+
         console.log(`Selected: ${subjectId}`);
         console.log(`Prerequisites: ${prerequisites.join(', ')}`);
         console.log(`Unlocks: ${unlocks.join(', ')}`);
     }
-    
+
     // Reorder cards in DOM based on their display_order dataset attribute
     function reorderCardsFromDisplayOrder() {
         for (let semester = 1; semester <= 10; semester++) {
             const column = document.querySelector(`.semester-column[data-semester="${semester}"]`);
             if (!column) continue;
-            
+
             const subjectList = column.querySelector('.subject-list');
             if (!subjectList) continue;
-            
+
             // Get all cards in this semester
             const cards = Array.from(subjectList.querySelectorAll('.subject-card'));
-            
+
             // Sort cards by display_order (convert to number, treat undefined as 999)
             cards.sort((a, b) => {
                 const orderA = a.dataset.displayOrder !== undefined ? parseInt(a.dataset.displayOrder) : 999;
                 const orderB = b.dataset.displayOrder !== undefined ? parseInt(b.dataset.displayOrder) : 999;
                 return orderA - orderB;
             });
-            
+
             // Reappend cards in sorted order
             cards.forEach(card => {
                 subjectList.appendChild(card);
             });
         }
     }
-    
+
     // Enable drag and drop functionality using event delegation
     function enableDragAndDrop() {
         // Set ALL subject cards as draggable (original and new ones)
@@ -1171,11 +1179,11 @@ document.addEventListener('DOMContentLoaded', function() {
             card.draggable = true;
             console.log('Made draggable:', card.dataset.subjectId);
         });
-        
+
         console.log('Total cards made draggable:', document.querySelectorAll('.subject-card').length);
-        
+
         let currentPlaceholder = null;
-        
+
         // Use event delegation for drag events
         document.addEventListener('dragstart', function(e) {
             if (e.target.classList.contains('subject-card')) {
@@ -1186,75 +1194,75 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Drag started:', e.target.dataset.subjectId);
             }
         });
-        
+
         document.addEventListener('dragend', function(e) {
             if (e.target.classList.contains('subject-card')) {
                 e.target.classList.remove('dragging');
                 console.log('Drag ended:', e.target.dataset.subjectId);
-                
+
                 // Remove any existing placeholder
                 if (currentPlaceholder) {
                     currentPlaceholder.remove();
                     currentPlaceholder = null;
                 }
-                
+
                 // Remove all shift classes
                 document.querySelectorAll('.subject-card').forEach(card => {
                     card.classList.remove('drag-shift-up', 'drag-shift-down');
                     card.style.transform = '';
                 });
-                
+
                 draggedCard = null;
             }
         });
-        
+
         // Add drop zones to semester columns
         const semesterColumns = document.querySelectorAll('.semester-column');
         console.log('Found semester columns:', semesterColumns.length);
-        
+
         semesterColumns.forEach(column => {
             column.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 this.classList.add('drag-over');
-                
+
                 if (!draggedCard) return;
-                
+
                 // Get the semester of the dragged card and current column
                 const draggedSemester = draggedCard.closest('.semester-column')?.dataset.semester;
                 const currentSemester = this.dataset.semester;
-                
+
                 // Only show placeholder if moving within the same semester
                 if (draggedSemester === currentSemester) {
                     // Find the subject list
                     const subjectList = this.querySelector('.subject-list');
                     if (!subjectList) return;
-                    
+
                     // Get all cards in this column (excluding dragged card)
                     const cards = Array.from(subjectList.querySelectorAll('.subject-card:not(.dragging)'));
-                    
+
                     // Find which card we're hovering over
                     const afterCard = cards.reduce((closest, child) => {
                         const box = child.getBoundingClientRect();
                         const offset = e.clientY - box.top - box.height / 2;
-                        
+
                         if (offset < 0 && offset > closest.offset) {
                             return { offset: offset, element: child };
                         } else {
                             return closest;
                         }
                     }, { offset: Number.NEGATIVE_INFINITY }).element;
-                    
+
                     // Remove existing placeholder
                     if (currentPlaceholder) {
                         currentPlaceholder.remove();
                     }
-                    
+
                     // Create new placeholder
                     const placeholder = document.createElement('div');
                     placeholder.className = 'drag-placeholder';
                     currentPlaceholder = placeholder;
-                    
+
                     // Insert placeholder at appropriate position
                     if (afterCard) {
                         subjectList.insertBefore(placeholder, afterCard);
@@ -1269,12 +1277,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            
+
             column.addEventListener('dragleave', function(e) {
                 // Only remove drag-over if we're actually leaving the column
                 if (!this.contains(e.relatedTarget)) {
                     this.classList.remove('drag-over');
-                    
+
                     // Remove placeholder when leaving column
                     if (currentPlaceholder && !this.contains(e.relatedTarget)) {
                         setTimeout(() => {
@@ -1286,55 +1294,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            
+
             column.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('drag-over');
-                
+
                 console.log('Drop event:', {
                     draggedCard: draggedCard?.dataset.subjectId,
                     targetSemester: this.dataset.semester
                 });
-                
+
                 if (draggedCard) {
                     const newSemester = this.dataset.semester;
                     const subjectId = draggedCard.dataset.subjectId;
                     const oldSemester = draggedCard.closest('.semester-column').dataset.semester;
                     const subjectList = this.querySelector('.subject-list');
-                    
+
                     // Get the position where placeholder is
                     let insertBeforeCard = null;
                     if (currentPlaceholder && currentPlaceholder.nextElementSibling) {
                         insertBeforeCard = currentPlaceholder.nextElementSibling;
                     }
-                    
+
                     // Remove placeholder
                     if (currentPlaceholder) {
                         currentPlaceholder.remove();
                         currentPlaceholder = null;
                     }
-                    
+
                     console.log('Moving subject:', {
                         subjectId,
                         from: oldSemester,
                         to: newSemester,
                         insertBefore: insertBeforeCard?.dataset.subjectId
                     });
-                    
+
                     if (newSemester !== oldSemester) {
                         // Moving to different semester
                         console.log('*** CALLING MODAL FUNCTION ***');
                         console.log('Subject:', subjectId, 'From:', oldSemester, 'To:', newSemester);
-                        
+
                         // Store target position for later
                         window.tempMoveTargetCard = insertBeforeCard;
-                        
+
                         // Show modal to optionally edit prerequisites
                         showMoveSubjectModal(draggedCard, this, newSemester, oldSemester);
                     } else {
                         // Reordering within same semester
                         console.log('Same semester, reordering...');
-                        
+
                         if (insertBeforeCard && insertBeforeCard !== draggedCard) {
                             // Insert before the target card
                             subjectList.insertBefore(draggedCard, insertBeforeCard);
@@ -1342,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Append to end
                             subjectList.appendChild(draggedCard);
                         }
-                        
+
                         // Recalculate display_order
                         recalculateDisplayOrder(newSemester);
                     }
@@ -1350,22 +1358,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Move subject to new semester
     function moveSubjectToSemester(card, newColumn, newSemester) {
         // Get the original column (before moving)
         const oldColumn = card.closest('.semester-column');
-        
+
         // Get the original semester from the column data attribute (more reliable than badge)
         const oldSemester = oldColumn ? parseInt(oldColumn.dataset.semester) : null;
-        
+
         // Save original position BEFORE moving the card
         const oldSubjectList = oldColumn ? oldColumn.querySelector('.subject-list') : null;
         const originalPosition = oldSubjectList ? Array.from(oldSubjectList.children).indexOf(card) : -1;
-        
+
         const subjectList = newColumn.querySelector('.subject-list');
         const targetCard = window.tempMoveTargetCard;
-        
+
         // Move the actual card to new location FIRST
         if (targetCard && targetCard !== card) {
             // Insert before the target card
@@ -1374,58 +1382,58 @@ document.addEventListener('DOMContentLoaded', function() {
             // Append to end
             subjectList.appendChild(card);
         }
-        
+
         // Clean up temp variable
         delete window.tempMoveTargetCard;
-        
+
         // Update semester display
         const semesterBadge = card.querySelector('.semester-badge');
         if (semesterBadge) {
             semesterBadge.textContent = `Semestre ${newSemester}`;
         }
-        
+
         // Add visual indicator for moved subject (blue style)
         card.classList.add('moved-subject');
-        
+
         // Create a ghost copy in the original location (AFTER moving the card)
         if (oldColumn && oldColumn !== newColumn && oldSemester && oldSubjectList) {
             const subjectCode = card.dataset.subjectId;
-            
+
             // Remove any existing ghost for this subject in the old location
             const existingGhost = oldColumn.querySelector(`[data-ghost-of="${subjectCode}"]`);
             if (existingGhost) {
                 existingGhost.remove();
             }
-            
+
             // Clone the card to create a ghost (clone from the moved card)
             const ghostCard = card.cloneNode(true);
-            
+
             // Remove all IDs to avoid conflicts
             ghostCard.removeAttribute('id');
             ghostCard.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-            
+
             // Add ghost styling
             ghostCard.classList.add('moved-ghost');
             ghostCard.classList.remove('moved-subject'); // Remove the blue style from ghost
             ghostCard.classList.remove('dragging'); // Remove any drag state
-            
+
             // Mark as ghost
             ghostCard.dataset.ghostOf = subjectCode;
-            
+
             // Disable drag and drop on ghost
             ghostCard.draggable = false;
             ghostCard.removeAttribute('draggable');
-            
+
             // Remove all event listeners by replacing with clone (this removes attached listeners)
             const cleanGhost = ghostCard.cloneNode(true);
-            
+
             // Restore original semester badge in ghost
             const ghostBadge = cleanGhost.querySelector('.semester-badge');
             if (ghostBadge) {
                 ghostBadge.textContent = `Semestre ${oldSemester}`;
                 ghostBadge.style.opacity = '0.3';
             }
-            
+
             // Insert the ghost at the original position
             if (originalPosition >= 0 && originalPosition < oldSubjectList.children.length) {
                 oldSubjectList.insertBefore(cleanGhost, oldSubjectList.children[originalPosition]);
@@ -1434,40 +1442,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 oldSubjectList.appendChild(cleanGhost);
             }
         }
-        
+
         // Recalculate display_order for the new semester WITHOUT tracking
         // (moving between semesters is already tracked as 'semester' change)
         recalculateDisplayOrder(newSemester, false);
     }
-    
+
     // Recalculate display_order for all subjects in a semester
     // trackChanges: if true, records changes (user action); if false, silent update (load/init)
     function recalculateDisplayOrder(semester, trackChanges = true) {
         const column = document.querySelector(`.semester-column[data-semester="${semester}"]`);
         if (!column) return;
-        
+
         const cards = Array.from(column.querySelectorAll('.subject-card'));
-        
+
         // Build the new order map
         const newOrderMap = {};
         cards.forEach((card, index) => {
             const subjectCode = card.dataset.subjectId;
             const newOrder = index;
-            
+
             // Update the display order in the dataset
             card.dataset.displayOrder = newOrder;
-            
+
             // Add to order map
             newOrderMap[subjectCode] = newOrder;
         });
-        
+
         // If tracking is enabled, save the complete order state for this semester
         if (trackChanges && Object.keys(newOrderMap).length > 0) {
             // Remove any existing semester_order change for this semester
-            simulationChanges = simulationChanges.filter(change => 
+            simulationChanges = simulationChanges.filter(change =>
                 !(change.type === 'semester_order' && change.semester === semester)
             );
-            
+
             // Add the new complete order state
             simulationChanges.push({
                 subject_code: `SEMESTER_${semester}`, // Special identifier
@@ -1478,25 +1486,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 old_value: null,
                 timestamp: new Date().toISOString()
             });
-            
+
             // Save to localStorage
             saveChangesToStorage();
             updateSimulationStatus();
         }
     }
-    
+
     // Record simulation changes
     // Record simulation changes with enhanced metadata
     function recordSimulationChange(subjectId, changeType, newValue, oldValue) {
         // Get subject name for better display
         const card = document.querySelector(`[data-subject-id="${subjectId}"]`);
         const subjectName = card ? card.querySelector('.subject-name')?.textContent.trim() : subjectId;
-        
+
         // Remove existing change for this subject and type
-        simulationChanges = simulationChanges.filter(change => 
+        simulationChanges = simulationChanges.filter(change =>
             !(change.subject_code === subjectId && change.type === changeType)
         );
-        
+
         // Add new change with timestamp and metadata
         simulationChanges.push({
             subject_code: subjectId,
@@ -1506,17 +1514,20 @@ document.addEventListener('DOMContentLoaded', function() {
             old_value: oldValue,
             timestamp: new Date().toISOString()
         });
-        
+
         // Save to localStorage for persistence
         saveChangesToStorage();
-        
+
         updateSimulationStatus();
+
+        //Notify to the program selector that there are unsaved changes
+        window.hasUnsavedChanges = true;
     }
-    
+
     // Update simulation status display
     function updateSimulationStatus() {
         // Count meaningful changes (exclude display_order and semester_order)
-        const meaningfulChanges = simulationChanges.filter(c => 
+        const meaningfulChanges = simulationChanges.filter(c =>
             c.type !== 'display_order' && c.type !== 'semester_order'
         );
         const changesByType = {
@@ -1525,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', function() {
             semester: simulationChanges.filter(c => c.type === 'semester').length,
             prerequisites: simulationChanges.filter(c => c.type === 'prerequisites').length,
         };
-        
+
         const statusDiv = document.getElementById('simulation-status');
         if (statusDiv) {
             if (meaningfulChanges.length > 0) {
@@ -1534,7 +1545,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (changesByType.removed > 0) summary.push(`${changesByType.removed} eliminada(s)`);
                 if (changesByType.semester > 0) summary.push(`${changesByType.semester} movida(s)`);
                 if (changesByType.prerequisites > 0) summary.push(`${changesByType.prerequisites} prerreq. modificado(s)`);
-                
+
                 statusDiv.innerHTML = `
                     <div class="alert alert-warning border-warning shadow-sm">
                         <div class="d-flex align-items-center">
@@ -1562,11 +1573,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusDiv.innerHTML = '';
             }
         }
-        
+
         // Update button states based on current changes and convalidation status
         updateConvalidationButtonStates();
     }
-    
+
     /**
      * Update the visibility and state of Convalidar and Guardar Malla buttons
      * - "Convalidar" visible when there are added/removed subjects
@@ -1575,32 +1586,32 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateConvalidationButtonStates() {
         const btnConvalidar = document.getElementById('btnConvalidar');
         const btnGuardarMalla = document.getElementById('btnGuardarMalla');
-        
+
         if (!btnConvalidar || !btnGuardarMalla) return;
-        
+
         // Check if there are added or removed subjects
         const hasAddedSubjects = simulationChanges.some(c => c.type === 'added');
         const hasRemovedSubjects = simulationChanges.some(c => c.type === 'removed');
         const requiresConvalidation = hasAddedSubjects || hasRemovedSubjects;
-        
+
         // Check if there are ANY changes at all
         const hasAnyChanges = simulationChanges && simulationChanges.length > 0;
-        const meaningfulChanges = simulationChanges.filter(c => 
+        const meaningfulChanges = simulationChanges.filter(c =>
             c.type !== 'display_order' && c.type !== 'semester_order'
         );
         const hasMeaningfulChanges = meaningfulChanges.length > 0;
-        
+
         if (requiresConvalidation) {
             // Show Convalidar button
             btnConvalidar.style.display = 'inline-block';
-            
+
             // Check if there's a complete convalidation
             const baseVersion = getBaseCurriculumVersion();
             const existingConvalidations = baseVersion?.convalidations || [];
-            
+
             if (existingConvalidations.length > 0) {
                 const lastConvalidation = existingConvalidations[existingConvalidations.length - 1];
-                
+
                 try {
                     // Check convalidation status from backend
                     const statusResponse = await fetch('/convalidation/check-status', {
@@ -1612,16 +1623,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         body: JSON.stringify({ curriculum_id: lastConvalidation.curriculum_id })
                     });
-                    
+
                     const statusData = await statusResponse.json();
-                    
+
                     if (statusData.success && statusData.exists && statusData.is_complete) {
                         // Convalidation is complete - enable save button
                         btnGuardarMalla.disabled = false;
                         btnGuardarMalla.title = 'Guardar la malla curricular';
                         btnGuardarMalla.classList.remove('btn-secondary');
                         btnGuardarMalla.classList.add('btn-primary');
-                        
+
                         // Update Convalidar button to show it's complete
                         btnConvalidar.classList.remove('btn-warning');
                         btnConvalidar.classList.add('btn-success');
@@ -1632,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         btnGuardarMalla.title = 'Complete la convalidación primero';
                         btnGuardarMalla.classList.remove('btn-primary');
                         btnGuardarMalla.classList.add('btn-secondary');
-                        
+
                         // Update Convalidar button with progress
                         btnConvalidar.classList.remove('btn-success');
                         btnConvalidar.classList.add('btn-warning');
@@ -1654,7 +1665,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnGuardarMalla.title = 'Debe convalidar antes de guardar';
                 btnGuardarMalla.classList.remove('btn-primary');
                 btnGuardarMalla.classList.add('btn-secondary');
-                
+
                 btnConvalidar.classList.remove('btn-success');
                 btnConvalidar.classList.add('btn-warning');
                 btnConvalidar.innerHTML = '<i class="fas fa-exchange-alt me-1"></i>Convalidar';
@@ -1662,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // No added/removed subjects - hide Convalidar button
             btnConvalidar.style.display = 'none';
-            
+
             // Enable save button if there are meaningful changes
             if (hasMeaningfulChanges) {
                 btnGuardarMalla.disabled = false;
@@ -1677,17 +1688,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     /**
      * Go to convalidation - handles existing or new convalidation
      */
     window.goToConvalidation = async function() {
         const baseVersion = getBaseCurriculumVersion();
         const existingConvalidations = baseVersion?.convalidations || [];
-        
+
         if (existingConvalidations.length > 0) {
             const lastConvalidation = existingConvalidations[existingConvalidations.length - 1];
-            
+
             try {
                 // Check convalidation status from backend
                 const statusResponse = await fetch('/convalidation/check-status', {
@@ -1699,9 +1710,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     body: JSON.stringify({ curriculum_id: lastConvalidation.curriculum_id })
                 });
-                
+
                 const statusData = await statusResponse.json();
-                
+
                 if (statusData.success && statusData.exists) {
                     // Show choice modal
                     showConvalidationChoiceModal(statusData, lastConvalidation);
@@ -1718,13 +1729,13 @@ document.addEventListener('DOMContentLoaded', function() {
             createNewConvalidation();
         }
     };
-    
+
     // Update affected percentage display
     function updateAffectedPercentage(percentage) {
         const percentageElement = document.getElementById('affected-percentage');
         if (percentageElement) {
             percentageElement.textContent = percentage + '%';
-            
+
             // Add color coding
             if (percentage > 50) {
                 percentageElement.style.color = '#dc3545'; // Red
@@ -1737,9 +1748,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     // Add simulation controls
-    
+
     // Analyze impact of changes
     window.analyzeImpact = function() {
         if (simulationChanges.length === 0) {
@@ -1747,9 +1758,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateAffectedPercentage(0);
             return;
         }
-        
+
         const loadingModal = showLoadingModal('Analizando impacto...');
-        
+
         fetch('/simulation/analyze-impact', {
             method: 'POST',
             headers: {
@@ -1763,10 +1774,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             hideLoadingModal(loadingModal);
-            
+
             // Update the affected percentage display
             updateAffectedPercentage(data.affected_percentage);
-            
+
             // Show detailed impact analysis
             showImpactAnalysis(data);
         })
@@ -1776,46 +1787,46 @@ document.addEventListener('DOMContentLoaded', function() {
             showAlertModal('Ocurrió un error al analizar el impacto de los cambios. Por favor intente nuevamente.', 'error', 'Error al Analizar');
         });
     };
-    
+
     // Reset simulation to original state
     window.resetSimulation = function() {
         // Get current base version info to show in confirmation
         const baseVersion = getBaseCurriculumVersion();
         const convalidationsCount = baseVersion ? baseVersion.convalidations.length : 0;
-        
+
         // Build detailed confirmation message
         let confirmMessage = '¿Está seguro de que desea resetear todos los cambios?<br><br>';
         confirmMessage += '<div class="text-start"><small class="text-muted">';
         confirmMessage += '<strong>Esto eliminará:</strong><br>';
         confirmMessage += '• Todos los cambios temporales en la malla<br>';
-        
+
         if (convalidationsCount > 0) {
             confirmMessage += `• <span class="text-danger">${convalidationsCount} convalidación(es)</span> vinculada(s) a la versión actual<br>`;
             confirmMessage += '<br><strong class="text-danger">Las convalidaciones se eliminarán permanentemente porque se generaron a partir de cambios que están siendo descartados.</strong><br>';
         }
-        
+
         confirmMessage += '<br>La página se recargará para restaurar el estado original.';
         confirmMessage += '</small></div>';
-        
+
         showConfirmModal(
             confirmMessage,
             function() {
                 console.log('Reseteando simulación...');
                 console.log('Estado ANTES del reset:');
-                
+
                 // Get current base version
                 const currentBase = getBaseCurriculumVersion();
                 console.log('   - Versión base:', currentBase);
                 console.log('   - Convalidaciones antes:', currentBase ? currentBase.convalidations.length : 0);
-                
+
                 // If there are convalidations, delete them from the backend
                 if (convalidationsCount > 0 && currentBase && currentBase.convalidations.length > 0) {
                     const curriculumIds = currentBase.convalidations.map(c => c.curriculum_id);
                     console.log('Eliminando convalidaciones del backend:', curriculumIds);
-                    
+
                     // Show loading indicator
                     const loadingModal = showLoadingModal('Eliminando convalidaciones...');
-                    
+
                     // Delete from backend
                     fetch('/convalidation/delete-multiple', {
                         method: 'POST',
@@ -1831,18 +1842,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => {
                         hideLoadingModal(loadingModal);
-                        
+
                         if (data.success) {
                             console.log(`${data.deleted_count} convalidación(es) eliminada(s) del backend`);
-                            
+
                             // Clear from localStorage
                             currentBase.convalidations = [];
                             updateBaseCurriculumVersion(currentBase);
-                            
+
                             // Clear all temporary changes
                             simulationChanges = [];
                             clearStoredChanges();
-                            
+
                             console.log('Reset completado. Recargando página...');
                             window.location.reload();
                         } else {
@@ -1858,13 +1869,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             'error',
                             'Error al Eliminar'
                         );
-                        
+
                         // Even if backend fails, clear localStorage
                         currentBase.convalidations = [];
                         updateBaseCurriculumVersion(currentBase);
                         simulationChanges = [];
                         clearStoredChanges();
-                        
+
                         setTimeout(() => window.location.reload(), 2000);
                     });
                 } else {
@@ -1881,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Cancelar'
         );
     };
-    
+
     /**
      * Discard temporary changes without reloading the page
      * Removes visual indicators and restores original state
@@ -1889,16 +1900,16 @@ document.addEventListener('DOMContentLoaded', function() {
     window.discardChanges = function() {
         // Check if there are changes to discard
         const meaningfulChanges = simulationChanges.filter(c => c.type !== 'display_order');
-        
+
         if (meaningfulChanges.length === 0) {
             showAlertModal('No hay cambios temporales para descartar.', 'info', 'Sin Cambios');
             return;
         }
-        
+
         // Get convalidations count
         const baseVersion = getBaseCurriculumVersion();
         const convalidationsCount = baseVersion ? baseVersion.convalidations.length : 0;
-        
+
         // Build confirmation message
         let confirmMessage = `¿Desea descartar ${meaningfulChanges.length} cambio(s) temporal(es)?<br><br>`;
         confirmMessage += '<div class="text-start">';
@@ -1908,15 +1919,15 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmMessage += `• ${simulationChanges.filter(c => c.type === 'removed').length} materia(s) marcada(s) para eliminar<br>`;
         confirmMessage += `• ${simulationChanges.filter(c => c.type === 'semester').length} cambio(s) de semestre<br>`;
         confirmMessage += `• ${simulationChanges.filter(c => c.type === 'prerequisites').length} cambio(s) de prerrequisitos<br>`;
-        
+
         if (convalidationsCount > 0) {
             confirmMessage += `• <span class="text-danger">${convalidationsCount} convalidación(es)</span> vinculada(s)<br>`;
         }
-        
+
         confirmMessage += '</small>';
         confirmMessage += '</div><br>';
         confirmMessage += '<strong>Los cambios se descartarán sin recargar la página.</strong>';
-        
+
         showConfirmModal(
             confirmMessage,
             function() {
@@ -1928,17 +1939,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'Cancelar'
         );
     };
-    
+
     /**
      * Actually discard the changes without page reload
      */
     function discardChangesWithoutReload() {
         const changesCopy = [...simulationChanges];
-        
+
         // Process each change in reverse to undo them
         changesCopy.forEach(change => {
             const card = document.querySelector(`[data-subject-id="${change.subject_code}"]`);
-            
+
             switch(change.type) {
                 case 'added':
                     // Remove added subjects
@@ -1946,7 +1957,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.remove();
                     }
                     break;
-                    
+
                 case 'removed':
                     // Restore removed subjects (remove visual mark)
                     if (card) {
@@ -1956,7 +1967,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.classList.remove('removed-subject');
                     }
                     break;
-                    
+
                 case 'semester':
                     // Move back to original semester
                     if (card && originalCurriculum[change.subject_code]) {
@@ -1965,7 +1976,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (targetColumn) {
                             targetColumn.appendChild(card);
                             card.classList.remove('moved-subject');
-                            
+
                             // Update semester badge
                             const semesterBadge = card.querySelector('.semester-badge');
                             if (semesterBadge) {
@@ -1974,7 +1985,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     break;
-                    
+
                 case 'prerequisites':
                     // Restore original prerequisites
                     if (card && originalCurriculum[change.subject_code]) {
@@ -1986,18 +1997,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
             }
         });
-        
+
         // Clear changes array
         simulationChanges = [];
-        
+
         // Clear convalidations from backend and localStorage
         const baseVersion = getBaseCurriculumVersion();
         if (baseVersion && baseVersion.convalidations.length > 0) {
             const convalidationsCount = baseVersion.convalidations.length;
             const curriculumIds = baseVersion.convalidations.map(c => c.curriculum_id);
-            
+
             console.log(`Eliminando ${convalidationsCount} convalidación(es) del backend...`);
-            
+
             // Delete from backend (async, but don't wait)
             fetch('/convalidation/delete-multiple', {
                 method: 'POST',
@@ -2019,26 +2030,26 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error eliminando convalidaciones del backend:', error);
             });
-            
+
             // Clear from localStorage immediately
             baseVersion.convalidations = [];
             updateBaseCurriculumVersion(baseVersion);
             console.log(`${convalidationsCount} convalidación(es) eliminada(s) del localStorage`);
         }
-        
+
         // Clear from localStorage
         clearStoredChanges();
-        
+
         // Update status display
         updateSimulationStatus();
-        
+
         // Recalculate credits
         initializeTotalCredits();
         updateCreditsDisplay();
-        
+
         // Update relationships
         updateUnlocksRelationships();
-        
+
         // Show success message
         showAlertModal(
             'Todos los cambios temporales han sido descartados exitosamente.<br><br>' +
@@ -2047,7 +2058,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Cambios Descartados'
         );
     }
-    
+
     // Reset using original order from materias.txt
     function resetToOriginalOrder() {
         // Clear all semester columns first
@@ -2056,69 +2067,69 @@ document.addEventListener('DOMContentLoaded', function() {
             const subjectList = column.querySelector('.subject-list');
             subjectList.innerHTML = '';
         });
-        
+
         // Place subjects in original order
         Object.keys(window.originalOrder).forEach(semester => {
             const semesterColumn = document.querySelector(`[data-semester="${semester}"]`);
             const subjectList = semesterColumn.querySelector('.subject-list');
-            
+
             window.originalOrder[semester].forEach(subjectCode => {
                 const card = document.querySelector(`[data-subject-id="${subjectCode}"]`);
                 if (card) {
                     // Reset visual changes
                     card.classList.remove('moved');
-                    
+
                     // Reset prerequisites if they were changed
                     if (originalCurriculum[subjectCode]) {
                         card.dataset.prerequisites = originalCurriculum[subjectCode].prerequisites.join(',');
                     }
-                    
+
                     // Reset semester badge
                     const semesterBadge = card.querySelector('.semester-badge');
                     if (semesterBadge) {
                         semesterBadge.textContent = `Semestre ${semester}`;
                     }
-                    
+
                     // Add to correct semester
                     subjectList.appendChild(card);
                 }
             });
         });
-        
+
         console.log('Reset to original order from materias.txt');
     }
-    
+
     // Reset using stored positions (fallback)
     function resetToStoredPositions() {
         Object.keys(originalCurriculum).forEach(subjectId => {
             const original = originalCurriculum[subjectId];
             const card = document.querySelector(`[data-subject-id="${subjectId}"]`);
-            
+
             if (card) {
                 // Find original semester column
                 const originalColumn = document.querySelector(`[data-semester="${original.semester}"]`);
                 const subjectList = originalColumn.querySelector('.subject-list');
-                
+
                 // Move card back
                 subjectList.appendChild(card);
-                
+
                 // Reset visual changes
                 card.classList.remove('moved');
-                
+
                 // Reset semester badge
                 const semesterBadge = card.querySelector('.semester-badge');
                 if (semesterBadge) {
                     semesterBadge.textContent = `Semestre ${original.semester}`;
                 }
-                
+
                 // Reset prerequisites if they were changed
                 card.dataset.prerequisites = original.prerequisites.join(',');
             }
         });
-        
+
         console.log('Reset to stored positions');
     }
-    
+
     // Show impact analysis modal
     function showImpactAnalysis(data) {
         const modalHtml = `
@@ -2212,7 +2223,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             ` : ''}
-                            
+
                             ${data.details.length > 0 ? `
                                 <!-- Search and Filters Bar -->
                                 <div class="mb-3">
@@ -2221,10 +2232,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span class="input-group-text">
                                             <i class="fas fa-search"></i>
                                         </span>
-                                        <input 
-                                            type="text" 
-                                            class="form-control" 
-                                            id="studentSearchInput" 
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="studentSearchInput"
                                             placeholder="Buscar estudiante por código (documento)..."
                                             oninput="applyFilters()"
                                         >
@@ -2232,7 +2243,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
-                                    
+
                                     <!-- Filter Options -->
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-4">
@@ -2280,7 +2291,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Result Count -->
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted" id="searchResultCount"></small>
@@ -2289,7 +2300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <h6 class="mb-3">
                                     <i class="fas fa-users me-2"></i>
                                     Detalles de Estudiantes Afectados
@@ -2298,10 +2309,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     ${data.details.map((detail, index) => `
                                         <div class="accordion-item mb-2 border rounded">
                                             <h2 class="accordion-header">
-                                                <button 
-                                                    class="accordion-button collapsed" 
-                                                    type="button" 
-                                                    data-bs-toggle="collapse" 
+                                                <button
+                                                    class="accordion-button collapsed"
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
                                                     data-bs-target="#collapse${index}"
                                                     data-progress-change="${detail.progress_change}"
                                                     data-papa-change="${detail.papa_change}"
@@ -2387,7 +2398,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                             </div>
                                                         </div>
                                                         ` : ''}
-                                                        
+
                                                         <!-- Issues -->
                                                         ${detail.issues.length > 0 ? `
                                                         <div class="col-12">
@@ -2419,7 +2430,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('impactModal');
         if (existingModal) {
@@ -2429,10 +2440,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Show modal with proper event handling
         const modalElement = document.getElementById('impactModal');
         const modal = new bootstrap.Modal(modalElement, {
@@ -2440,20 +2451,20 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: true,
             focus: true
         });
-        
+
         // Add event listeners to ensure proper cleanup
         modalElement.addEventListener('hidden.bs.modal', function () {
             cleanupModal(modalElement);
         });
-        
+
         modal.show();
-        
+
         // Initialize filters after modal is shown
         setTimeout(() => {
             applyFilters();
         }, 100);
     }
-    
+
     /**
      * Apply all filters (search + progress + papa) to students
      */
@@ -2462,25 +2473,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressFilter = document.getElementById('progressFilter')?.value || 'all';
         const papaFilter = document.getElementById('papaFilter')?.value || 'all';
         const impactTypeFilter = document.getElementById('impactTypeFilter')?.value || 'all';
-        
+
         const accordionItems = document.querySelectorAll('#studentsAccordion .accordion-item');
         const searchLower = searchTerm.toLowerCase().trim();
         let visibleCount = 0;
-        
+
         accordionItems.forEach(item => {
             const button = item.querySelector('.accordion-button');
             const studentDocument = button.textContent;
-            
+
             // Get student data from data attributes
             const progressChange = parseFloat(button.getAttribute('data-progress-change') || 0);
             const papaChange = parseFloat(button.getAttribute('data-papa-change') || 0);
             const hasDelay = button.getAttribute('data-has-delay') === 'true';
             const hasPrerequisites = button.getAttribute('data-has-prerequisites') === 'true';
             const hasGaps = button.getAttribute('data-has-gaps') === 'true';
-            
+
             // Check search filter
             const matchesSearch = searchLower === '' || studentDocument.toLowerCase().includes(searchLower);
-            
+
             // Check progress filter
             let matchesProgress = true;
             if (progressFilter !== 'all') {
@@ -2494,7 +2505,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     matchesProgress = progressChange >= min && progressChange <= max;
                 }
             }
-            
+
             // Check papa filter
             let matchesPapa = true;
             if (papaFilter !== 'all') {
@@ -2508,7 +2519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     matchesPapa = papaChange >= min && papaChange <= max;
                 }
             }
-            
+
             // Check impact type filter
             let matchesImpactType = true;
             if (impactTypeFilter !== 'all') {
@@ -2527,7 +2538,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
                 }
             }
-            
+
             // Show/hide based on all filters
             if (matchesSearch && matchesProgress && matchesPapa && matchesImpactType) {
                 item.style.display = '';
@@ -2536,20 +2547,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.style.display = 'none';
             }
         });
-        
+
         // Update result count
         updateResultCount(visibleCount, accordionItems.length, searchLower, progressFilter, papaFilter, impactTypeFilter);
     }
-    
+
     /**
      * Update the result count message based on active filters
      */
     function updateResultCount(visibleCount, totalCount, searchTerm, progressFilter, papaFilter, impactTypeFilter) {
         const resultCountElement = document.getElementById('searchResultCount');
         if (!resultCountElement) return;
-        
+
         const hasFilters = searchTerm !== '' || progressFilter !== 'all' || papaFilter !== 'all' || impactTypeFilter !== 'all';
-        
+
         if (!hasFilters) {
             resultCountElement.textContent = `Mostrando todos los ${totalCount} estudiantes afectados`;
             resultCountElement.classList.remove('text-danger', 'text-warning');
@@ -2560,9 +2571,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (progressFilter !== 'all') filterDescription.push('filtro de avance');
             if (papaFilter !== 'all') filterDescription.push('filtro de PAPA');
             if (impactTypeFilter !== 'all') filterDescription.push('filtro de tipo de impacto');
-            
+
             resultCountElement.textContent = `Mostrando ${visibleCount} de ${totalCount} estudiantes (${filterDescription.join(', ')})`;
-            
+
             if (visibleCount === 0) {
                 resultCountElement.textContent += ' - No se encontraron coincidencias';
                 resultCountElement.classList.add('text-danger');
@@ -2576,7 +2587,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     /**
      * Clear all filters and search
      */
@@ -2585,15 +2596,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressFilter = document.getElementById('progressFilter');
         const papaFilter = document.getElementById('papaFilter');
         const impactTypeFilter = document.getElementById('impactTypeFilter');
-        
+
         if (searchInput) searchInput.value = '';
         if (progressFilter) progressFilter.value = 'all';
         if (papaFilter) papaFilter.value = 'all';
         if (impactTypeFilter) impactTypeFilter.value = 'all';
-        
+
         applyFilters();
     }
-    
+
     /**
      * Legacy function for backward compatibility
      * @deprecated Use applyFilters() instead
@@ -2602,11 +2613,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const accordionItems = document.querySelectorAll('#studentsAccordion .accordion-item');
         const searchLower = searchTerm.toLowerCase().trim();
         let visibleCount = 0;
-        
+
         accordionItems.forEach(item => {
             const button = item.querySelector('.accordion-button');
             const studentDocument = button.textContent;
-            
+
             if (searchLower === '' || studentDocument.toLowerCase().includes(searchLower)) {
                 item.style.display = '';
                 visibleCount++;
@@ -2614,7 +2625,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.style.display = 'none';
             }
         });
-        
+
         // Update result count
         const resultCountElement = document.getElementById('searchResultCount');
         if (resultCountElement) {
@@ -2631,7 +2642,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     // Show loading modal
     function showLoadingModal(message) {
         const modalHtml = `
@@ -2648,14 +2659,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
         modal.show();
-        
+
         return modal;
     }
-    
+
     // Hide loading modal
     function hideLoadingModal(modal) {
         modal.hide();
@@ -2663,27 +2674,27 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('loadingModal').remove();
         }, 300);
     }
-    
+
     // Add click event listeners to subject cards using event delegation
     document.addEventListener('click', function(e) {
         console.log('CLICK EVENT TRIGGERED');
         console.log('Target:', e.target);
         console.log('Target tagName:', e.target.tagName);
         console.log('Target classes:', e.target.className);
-        
+
         const subjectCard = e.target.closest('.subject-card');
         console.log('Found subject card:', subjectCard?.dataset?.subjectId || 'none');
-        
+
         if (subjectCard) {
             // Stop ANY other event handlers from running
             e.preventDefault();
             e.stopImmediatePropagation();
             e.stopPropagation();
-            
+
             const subjectId = subjectCard.dataset.subjectId;
             console.log(`PROCESSING CLICK on: ${subjectId}`);
             console.log(`Currently selected: ${selectedSubjectId || 'none'}`);
-            
+
             // If clicking the same card (by ID), toggle off
             if (selectedSubjectId === subjectId) {
                 console.log('DESELECTING - Same subject clicked');
@@ -2692,7 +2703,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedSubjectId = null;
                 return;
             }
-            
+
             // Highlight related subjects
             console.log('HIGHLIGHTING - New subject selected');
             highlightRelated(subjectCard);
@@ -2708,7 +2719,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     // Show enhanced changes modal with detailed information
     window.showChangesModal = function() {
         // Group changes by type for better organization
@@ -2720,10 +2731,10 @@ document.addEventListener('DOMContentLoaded', function() {
             display_order: simulationChanges.filter(c => c.type === 'display_order'),
             other: simulationChanges.filter(c => !['added', 'removed', 'semester', 'prerequisites', 'display_order'].includes(c.type))
         };
-        
+
         // Count total meaningful changes (exclude display_order for count)
         const meaningfulChanges = simulationChanges.filter(c => c.type !== 'display_order').length;
-        
+
         const modalHtml = `
             <div class="modal fade" id="changesModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
@@ -2772,7 +2783,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Added Subjects -->
                                 ${changesByType.added.length > 0 ? `
                                     <div class="mb-4">
@@ -2811,7 +2822,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     </div>
                                 ` : ''}
-                                
+
                                 <!-- Removed Subjects -->
                                 ${changesByType.removed.length > 0 ? `
                                     <div class="mb-4">
@@ -2852,7 +2863,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     </div>
                                 ` : ''}
-                                
+
                                 <!-- Semester Changes -->
                                 ${changesByType.semester.length > 0 ? `
                                     <div class="mb-4">
@@ -2900,7 +2911,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     </div>
                                 ` : ''}
-                                
+
                                 <!-- Prerequisites Changes -->
                                 ${changesByType.prerequisites.length > 0 ? `
                                     <div class="mb-4">
@@ -2929,13 +2940,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                                             <td><strong>${change.subject_code}</strong></td>
                                                             <td>${change.subject_name}</td>
                                                             <td>
-                                                                ${oldPrereqs.length > 0 ? 
-                                                                    oldPrereqs.map(p => `<span class="badge bg-secondary me-1">${p}</span>`).join('') 
+                                                                ${oldPrereqs.length > 0 ?
+                                                                    oldPrereqs.map(p => `<span class="badge bg-secondary me-1">${p}</span>`).join('')
                                                                     : '<span class="text-muted">Ninguno</span>'}
                                                             </td>
                                                             <td>
-                                                                ${newPrereqs.length > 0 ? 
-                                                                    newPrereqs.map(p => `<span class="badge bg-primary me-1">${p}</span>`).join('') 
+                                                                ${newPrereqs.length > 0 ?
+                                                                    newPrereqs.map(p => `<span class="badge bg-primary me-1">${p}</span>`).join('')
                                                                     : '<span class="text-muted">Ninguno</span>'}
                                                             </td>
                                                             <td>
@@ -2950,7 +2961,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     </div>
                                 ` : ''}
-                                
+
                                 <!-- Reordering Summary (if many) -->
                                 ${changesByType.display_order.length > 0 ? `
                                     <div class="alert alert-info">
@@ -2980,7 +2991,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('changesModal');
         if (existingModal) {
@@ -2990,10 +3001,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Show modal with proper event handling
         const modalElement = document.getElementById('changesModal');
         const modal = new bootstrap.Modal(modalElement, {
@@ -3001,19 +3012,19 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: true,
             focus: true
         });
-        
+
         // Add event listeners to ensure proper cleanup
         modalElement.addEventListener('hidden.bs.modal', function () {
             cleanupModal(modalElement);
         });
-        
+
         modal.show();
     };
-    
+
     // Remove individual change
     window.removeChange = function(index) {
         const change = simulationChanges[index];
-        
+
         // Revert visual changes
         if (change.type === 'semester') {
             const card = document.querySelector(`[data-subject-id="${change.subject_code}"]`);
@@ -3021,13 +3032,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Find original semester column
                 const originalColumn = document.querySelector(`[data-semester="${change.old_value}"]`);
                 const subjectList = originalColumn.querySelector('.subject-list');
-                
+
                 // Move card back
                 subjectList.appendChild(card);
-                
+
                 // Reset visual changes
                 card.classList.remove('moved');
-                
+
                 // Reset semester badge
                 const semesterBadge = card.querySelector('.semester-badge');
                 if (semesterBadge) {
@@ -3044,14 +3055,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.border = '';
                 card.style.boxShadow = '';
                 card.setAttribute('data-removed', 'false');
-                
+
                 // Remove strikethrough from name
                 const nameElement = card.querySelector('.subject-name');
                 if (nameElement) {
                     nameElement.style.textDecoration = '';
                     nameElement.style.color = '';
                 }
-                
+
                 // Remove "Eliminada" badge
                 const removedBadge = card.querySelector('.badge.bg-danger');
                 if (removedBadge && removedBadge.textContent === 'Eliminada') {
@@ -3059,28 +3070,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        
+
         // Remove change from array
         simulationChanges.splice(index, 1);
         updateSimulationStatus();
-        
+
         // Recalculate credits (in case a removed subject was un-removed)
         initializeTotalCredits();
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('changesModal'));
         if (modal) {
             modal.hide();
         }
     };
-    
+
     // Save simulation (placeholder for future implementation)
     window.saveSimulation = function() {
         if (simulationChanges.length === 0) {
             showAlertModal('No hay cambios pendientes para guardar.', 'info', 'Sin Cambios');
             return;
         }
-        
+
         showConfirmModal(
             '¿Está seguro de que desea guardar estos cambios permanentemente?',
             function() {
@@ -3092,7 +3103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Cancelar'
         );
     };
-    
+
     // Export changes report
     window.exportChangesReport = function() {
         // Group changes by type
@@ -3103,12 +3114,12 @@ document.addEventListener('DOMContentLoaded', function() {
             prerequisites: simulationChanges.filter(c => c.type === 'prerequisites'),
             display_order: simulationChanges.filter(c => c.type === 'display_order')
         };
-        
+
         // Generate report text
         let report = '=== REPORTE DE CAMBIOS CURRICULARES ===\n\n';
         report += `Fecha: ${new Date().toLocaleString('es-ES')}\n`;
         report += `Total de cambios: ${simulationChanges.filter(c => c.type !== 'display_order').length}\n\n`;
-        
+
         if (changesByType.added.length > 0) {
             report += '--- MATERIAS AGREGADAS ---\n';
             changesByType.added.forEach(c => {
@@ -3117,7 +3128,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             report += '\n';
         }
-        
+
         if (changesByType.removed.length > 0) {
             report += '--- MATERIAS ELIMINADAS ---\n';
             changesByType.removed.forEach(c => {
@@ -3125,7 +3136,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             report += '\n';
         }
-        
+
         if (changesByType.semester.length > 0) {
             report += '--- CAMBIOS DE SEMESTRE ---\n';
             changesByType.semester.forEach(c => {
@@ -3134,7 +3145,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             report += '\n';
         }
-        
+
         if (changesByType.prerequisites.length > 0) {
             report += '--- CAMBIOS DE PRERREQUISITOS ---\n';
             changesByType.prerequisites.forEach(c => {
@@ -3144,12 +3155,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             report += '\n';
         }
-        
+
         if (changesByType.display_order.length > 0) {
             report += `--- REORDENAMIENTOS ---\n`;
             report += `${changesByType.display_order.length} materia(s) reordenadas dentro de sus semestres.\n\n`;
         }
-        
+
         // Create downloadable file
         const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -3160,10 +3171,10 @@ document.addEventListener('DOMContentLoaded', function() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         showSuccessMessage('Reporte exportado exitosamente');
     };
-    
+
     // Clear all changes
     window.clearAllChanges = function() {
         showConfirmModal(
@@ -3183,7 +3194,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (semesterBadge) {
                                     semesterBadge.textContent = `Semestre ${change.old_value}`;
                                 }
-                                
+
                                 // Remove the ghost copy
                                 const ghost = document.querySelector(`[data-ghost-of="${change.subject_code}"]`);
                                 if (ghost) {
@@ -3207,26 +3218,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 });
-                
+
                 // Clear array
                 simulationChanges = [];
-                
+
                 // Clear from localStorage (this will trigger storage event in other tabs)
                 clearStoredChanges();
-                
+
                 updateSimulationStatus();
-                
+
                 // Recalculate credits to show accurate totals
                 initializeTotalCredits();
-                
+
                 // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('changesModal'));
                 if (modal) {
                     modal.hide();
                 }
-                
+
                 showSuccessMessage('Todos los cambios han sido revertidos');
-                
+
                 // Reload page to ensure clean state
                 setTimeout(() => {
                     window.location.reload();
@@ -3238,17 +3249,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'Cancelar'
         );
     };
-    
+
     // Show modal when moving a subject to allow prerequisite editing
     function showMoveSubjectModal(card, newColumn, newSemester, oldSemester) {
         console.log('*** MODAL FUNCTION CALLED ***');
         console.log('Subject:', card.dataset.subjectId);
         console.log('From semester:', oldSemester, 'To semester:', newSemester);
-        
+
         const subjectId = card.dataset.subjectId;
         const subjectName = card.querySelector('.subject-name').textContent;
         const currentPrereqs = card.dataset.prerequisites.split(',').filter(p => p.trim());
-        
+
         const modalHtml = `
             <div class="modal fade" id="moveSubjectModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
@@ -3282,7 +3293,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="row mt-3">
                                 <div class="col-12">
                                     <div class="form-check">
@@ -3294,7 +3305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="row mt-3" id="prerequisiteEditor" style="display: none;">
                                 <div class="col-12">
                                     <label class="form-label fw-bold">
@@ -3313,7 +3324,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <input type="hidden" id="move-prereqs-hidden" value="${currentPrereqs.join(',')}">
                                 </div>
                             </div>
-                            
+
                             <div class="row mt-3">
                                 <div class="col-12">
                                     <div class="alert alert-light">
@@ -3337,7 +3348,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('moveSubjectModal');
         if (existingModal) {
@@ -3347,10 +3358,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Store references for later use
         window.tempMoveData = {
             card: card,
@@ -3358,7 +3369,7 @@ document.addEventListener('DOMContentLoaded', function() {
             newSemester: newSemester,
             oldSemester: oldSemester
         };
-        
+
         // Add event listener for prerequisite editor toggle
         document.getElementById('editPrerequisites').addEventListener('change', function() {
             const editor = document.getElementById('prerequisiteEditor');
@@ -3370,7 +3381,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 editor.style.display = 'none';
             }
         });
-        
+
         // Show modal with proper event handling
         const modalElement = document.getElementById('moveSubjectModal');
         const modal = new bootstrap.Modal(modalElement, {
@@ -3378,11 +3389,11 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: true,
             focus: true
         });
-        
+
         // Add event listeners to ensure proper cleanup
         modalElement.addEventListener('hidden.bs.modal', function () {
             cleanupModal(modalElement);
-            
+
             // FIXED: Aggressive cleanup to restore scroll
             const forceCleanup = () => {
                 // Remove Bootstrap modal state
@@ -3391,68 +3402,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.style.removeProperty('padding-right');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
-                
+
                 // Ensure curriculum grid maintains proper overflow
                 const curriculumGrid = document.querySelector('.curriculum-grid');
                 if (curriculumGrid) {
                     curriculumGrid.style.setProperty('overflow-x', 'auto', 'important');
                     curriculumGrid.style.setProperty('overflow-y', 'visible', 'important');
                 }
-                
+
                 // Remove any stuck modal backdrops
                 document.querySelectorAll('.modal-backdrop, .modal-backdrop.fade, .modal-backdrop.show').forEach(backdrop => {
                     backdrop.remove();
                 });
-                
+
                 // Force browser reflow
                 void document.body.offsetHeight;
             };
-            
+
             // Execute cleanup multiple times
             forceCleanup();
             setTimeout(forceCleanup, 50);
             setTimeout(forceCleanup, 150);
             setTimeout(forceCleanup, 300);
         });
-        
+
         modal.show();
     }
-    
+
     // Confirm subject move with optional prerequisite changes
     window.confirmMoveSubject = function(subjectId, newSemester, oldSemester) {
         const moveData = window.tempMoveData;
         const editPrereqs = document.getElementById('editPrerequisites').checked;
-        
+
         // Store current scroll position before moving
         const curriculumGrid = document.querySelector('.curriculum-grid');
         const scrollLeft = curriculumGrid ? curriculumGrid.scrollLeft : 0;
-        
+
         // Move the subject
         moveSubjectToSemester(moveData.card, moveData.newColumn, newSemester);
         recordSimulationChange(subjectId, 'semester', newSemester, oldSemester);
-        
+
         // Handle prerequisite changes if enabled
         if (editPrereqs) {
             const newPrereqs = document.getElementById('move-prereqs-hidden').value
                 .split(',')
                 .map(p => p.trim())
                 .filter(p => p);
-            
+
             const oldPrereqs = moveData.card.dataset.prerequisites.split(',').filter(p => p.trim());
-            
+
             // Check if there are prerequisite changes
             const hasPrereqChanges = JSON.stringify(newPrereqs.sort()) !== JSON.stringify(oldPrereqs.sort());
-            
+
             if (hasPrereqChanges) {
                 // Update card data
                 moveData.card.dataset.prerequisites = newPrereqs.join(',');
-                
+
                 // Record prerequisite change
                 recordSimulationChange(subjectId, 'prerequisites', newPrereqs.join(','), oldPrereqs.join(','));
-                
+
                 // Update unlocks relationships for all subjects
                 updateUnlocksRelationships();
-                
+
                 console.log('Prerequisites changed:', {
                     subject: subjectId,
                     old: oldPrereqs,
@@ -3460,41 +3471,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('moveSubjectModal'));
         if (modal) {
             modal.hide();
         }
-        
+
         // FIXED: Aggressive scroll restoration and cleanup
         const forceScrollRestoration = () => {
             // Restore scroll position
             if (curriculumGrid) {
                 curriculumGrid.scrollLeft = scrollLeft;
-                
+
                 // Force overflow styles with !important equivalent
                 curriculumGrid.style.setProperty('overflow-x', 'auto', 'important');
                 curriculumGrid.style.setProperty('overflow-y', 'visible', 'important');
                 curriculumGrid.style.setProperty('display', 'flex', 'important');
             }
-            
+
             // Aggressive body cleanup
             document.body.classList.remove('modal-open');
             document.body.style.removeProperty('overflow');
             document.body.style.removeProperty('padding-right');
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
-            
+
             // Remove all modal backdrops (sometimes multiple get stuck)
             const backdrops = document.querySelectorAll('.modal-backdrop, .modal-backdrop.fade, .modal-backdrop.show');
             backdrops.forEach(backdrop => {
                 backdrop.remove();
             });
-            
+
             // Force page reflow
             void document.body.offsetHeight;
-            
+
             console.log('Scroll restored:', {
                 scrollLeft: curriculumGrid?.scrollLeft,
                 overflowX: curriculumGrid?.style.overflowX,
@@ -3502,19 +3513,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 backdropsRemoved: backdrops.length
             });
         };
-        
+
         // Execute restoration multiple times to ensure it works
         setTimeout(forceScrollRestoration, 100);
         setTimeout(forceScrollRestoration, 300);
         setTimeout(forceScrollRestoration, 500);
-        
+
         // Clean up temp data
         delete window.tempMoveData;
-        
+
         // Auto-analyze impact after move
         setTimeout(() => analyzeImpact(), 500);
     };
-    
+
     // Right-click context menu for editing prerequisites using event delegation
     document.addEventListener('contextmenu', function(e) {
         const subjectCard = e.target.closest('.subject-card');
@@ -3523,7 +3534,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showSubjectContextMenu(e, subjectCard);
         }
     });
-    
+
     // Show context menu with options
     function showSubjectContextMenu(event, card) {
         // Remove any existing context menu
@@ -3531,10 +3542,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existingMenu) {
             existingMenu.remove();
         }
-        
+
         const subjectId = card.dataset.subjectId;
         const subjectName = card.querySelector('.subject-name').textContent;
-        
+
         // Create context menu with initial positioning
         const menuHtml = `
             <div id="subjectContextMenu" class="context-menu" style="position: fixed; top: ${event.clientY}px; left: ${event.clientX}px; z-index: 9999;">
@@ -3547,9 +3558,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-link me-2"></i>
                         Editar Prerrequisitos
                     </button>
-                    <button type="button" class="list-group-item list-group-item-action list-group-item-danger" 
-                            id="deleteSubjectBtn" 
-                            onclick="startDeleteSubjectTimer('${subjectId}', '${subjectName}')" 
+                    <button type="button" class="list-group-item list-group-item-action list-group-item-danger"
+                            id="deleteSubjectBtn"
+                            onclick="startDeleteSubjectTimer('${subjectId}', '${subjectName}')"
                             disabled>
                         <i class="fas fa-trash me-2"></i>
                         <span id="deleteSubjectText">Eliminar Materia (<span id="deleteTimer">5</span>s)</span>
@@ -3557,18 +3568,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', menuHtml);
-        
+
         // Adjust position if menu would overflow screen edges
         const menu = document.getElementById('subjectContextMenu');
         const menuRect = menu.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        
+
         let left = event.clientX;
         let top = event.clientY;
-        
+
         // Check if menu overflows right edge - flip to left
         if (left + menuRect.width > viewportWidth) {
             left = event.clientX - menuRect.width;
@@ -3577,7 +3588,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 left = 0;
             }
         }
-        
+
         // Check if menu overflows bottom edge - flip to top
         if (top + menuRect.height > viewportHeight) {
             top = event.clientY - menuRect.height;
@@ -3586,16 +3597,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 top = 0;
             }
         }
-        
+
         // Apply adjusted position
         menu.style.left = `${left}px`;
         menu.style.top = `${top}px`;
-        
+
         // Close menu when clicking outside
         setTimeout(() => {
             document.addEventListener('click', closeContextMenu);
         }, 100);
-        
+
         // Start countdown for delete button
         let countdown = 5;
         const timer = setInterval(() => {
@@ -3604,7 +3615,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (timerSpan) {
                 timerSpan.textContent = countdown;
             }
-            
+
             if (countdown <= 0) {
                 clearInterval(timer);
                 const deleteBtn = document.getElementById('deleteSubjectBtn');
@@ -3615,11 +3626,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }, 1000);
-        
+
         // Store timer to clear it if menu is closed early
         document.getElementById('subjectContextMenu').dataset.timerId = timer;
     }
-    
+
     // Close context menu
     function closeContextMenu() {
         const menu = document.getElementById('subjectContextMenu');
@@ -3633,7 +3644,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.removeEventListener('click', closeContextMenu);
     }
-    
+
     // Edit subject prerequisites (old function renamed)
     window.editSubjectPrerequisites = function(subjectId) {
         closeContextMenu();
@@ -3642,13 +3653,13 @@ document.addEventListener('DOMContentLoaded', function() {
             showPrerequisiteEditor(card);
         }
     };
-    
+
     // Open edit subject modal
     window.openEditSubjectModal = function(subjectId) {
         closeContextMenu();
         const card = document.querySelector(`[data-subject-id="${subjectId}"]`);
         if (!card) return;
-        
+
         // Get current values from card
         const subjectName = card.querySelector('.subject-name').textContent;
         const subjectCode = subjectId;
@@ -3656,7 +3667,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const classroomHours = parseInt(card.querySelector('.subject-card-header .info-box:nth-child(2) .info-value').textContent);
         const studentHours = parseInt(card.querySelector('.subject-card-header .info-box:nth-child(3) .info-value').textContent);
         const description = card.title || '';
-        
+
         // Create modal HTML
         const modalHtml = `
             <div class="modal fade" id="editSubjectModal" tabindex="-1">
@@ -3672,22 +3683,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="modal-body">
                             <form id="editSubjectForm">
                                 <input type="hidden" id="edit_subject_code" value="${subjectCode}">
-                                
+
                                 <div class="mb-3">
                                     <label for="edit_subject_name" class="form-label">
                                         <i class="fas fa-book me-1"></i> Nombre de la Materia
                                     </label>
-                                    <input type="text" class="form-control" id="edit_subject_name" 
+                                    <input type="text" class="form-control" id="edit_subject_name"
                                            value="${subjectName}" required>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="edit_subject_credits" class="form-label">
                                                 <i class="fas fa-certificate me-1"></i> Créditos
                                             </label>
-                                            <input type="number" class="form-control" id="edit_subject_credits" 
+                                            <input type="number" class="form-control" id="edit_subject_credits"
                                                    value="${credits}" min="1" max="20" required>
                                         </div>
                                     </div>
@@ -3696,7 +3707,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <label for="edit_classroom_hours" class="form-label">
                                                 <i class="fas fa-chalkboard-teacher me-1"></i> Horas Presenciales
                                             </label>
-                                            <input type="number" class="form-control" id="edit_classroom_hours" 
+                                            <input type="number" class="form-control" id="edit_classroom_hours"
                                                    value="${classroomHours}" min="0" max="20" required>
                                         </div>
                                     </div>
@@ -3705,20 +3716,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <label for="edit_student_hours" class="form-label">
                                                 <i class="fas fa-user-clock me-1"></i> Horas Independientes
                                             </label>
-                                            <input type="number" class="form-control" id="edit_student_hours" 
+                                            <input type="number" class="form-control" id="edit_student_hours"
                                                    value="${studentHours}" min="0" max="30" required>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <label for="edit_subject_description" class="form-label">
                                         <i class="fas fa-align-left me-1"></i> Descripción (opcional)
                                     </label>
-                                    <textarea class="form-control" id="edit_subject_description" 
+                                    <textarea class="form-control" id="edit_subject_description"
                                               rows="3">${description}</textarea>
                                 </div>
-                                
+
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle me-2"></i>
                                     <strong>Nota:</strong> Estos cambios se guardarán temporalmente hasta que presiones "Guardar Malla".
@@ -3737,26 +3748,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('editSubjectModal');
         if (existingModal) {
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('editSubjectModal'));
         modal.show();
-        
+
         // Clean up when modal is closed
         document.getElementById('editSubjectModal').addEventListener('hidden.bs.modal', function() {
             this.remove();
         });
     };
-    
+
     // Save subject edits
     window.saveSubjectEdits = function() {
         const subjectCode = document.getElementById('edit_subject_code').value;
@@ -3765,52 +3776,52 @@ document.addEventListener('DOMContentLoaded', function() {
         const newClassroomHours = parseInt(document.getElementById('edit_classroom_hours').value);
         const newStudentHours = parseInt(document.getElementById('edit_student_hours').value);
         const newDescription = document.getElementById('edit_subject_description').value.trim();
-        
+
         // Validation
         if (!newName) {
             showAlertModal('El nombre de la materia es obligatorio.', 'error', 'Error de Validación');
             return;
         }
-        
+
         if (newCredits < 1 || newCredits > 20) {
             showAlertModal('Los créditos deben estar entre 1 y 20.', 'error', 'Error de Validación');
             return;
         }
-        
+
         if (newClassroomHours < 0 || newClassroomHours > 20) {
             showAlertModal('Las horas presenciales deben estar entre 0 y 20.', 'error', 'Error de Validación');
             return;
         }
-        
+
         if (newStudentHours < 0 || newStudentHours > 30) {
             showAlertModal('Las horas independientes deben estar entre 0 y 30.', 'error', 'Error de Validación');
             return;
         }
-        
+
         // Get the card
         const card = document.querySelector(`[data-subject-id="${subjectCode}"]`);
         if (!card) {
             showAlertModal('No se encontró la materia.', 'error', 'Error');
             return;
         }
-        
+
         // Get old values for tracking changes
         const oldName = card.querySelector('.subject-name').textContent;
         const oldCredits = parseInt(card.querySelector('.subject-card-header .info-box:nth-child(1) .info-value').textContent);
         const oldClassroomHours = parseInt(card.querySelector('.subject-card-header .info-box:nth-child(2) .info-value').textContent);
         const oldStudentHours = parseInt(card.querySelector('.subject-card-header .info-box:nth-child(3) .info-value').textContent);
         const oldDescription = card.title || '';
-        
+
         // Update card UI
         card.querySelector('.subject-name').textContent = newName;
         card.querySelector('.subject-card-header .info-box:nth-child(1) .info-value').textContent = newCredits;
         card.querySelector('.subject-card-header .info-box:nth-child(2) .info-value').textContent = newClassroomHours;
         card.querySelector('.subject-card-header .info-box:nth-child(3) .info-value').textContent = newStudentHours;
         card.title = newDescription;
-        
+
         // Mark card as edited
         card.classList.add('edited-subject');
-        
+
         // Record changes
         const changeData = {
             name: newName !== oldName ? newName : oldName,
@@ -3819,7 +3830,7 @@ document.addEventListener('DOMContentLoaded', function() {
             student_hours: newStudentHours !== oldStudentHours ? newStudentHours : oldStudentHours,
             description: newDescription !== oldDescription ? newDescription : oldDescription
         };
-        
+
         recordSimulationChange(subjectCode, 'edit', changeData, {
             name: oldName,
             credits: oldCredits,
@@ -3827,24 +3838,24 @@ document.addEventListener('DOMContentLoaded', function() {
             student_hours: oldStudentHours,
             description: oldDescription
         });
-        
+
         // Update credits display
         updateCreditsDisplay();
         updateSimulationStatus();
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('editSubjectModal'));
         modal.hide();
-        
+
         showAlertModal('Materia editada correctamente. Los cambios se guardarán al presionar "Guardar Malla".', 'success', 'Materia Editada');
     };
-    
+
     // Start delete subject process
     window.startDeleteSubjectTimer = function(subjectId, subjectName) {
         closeContextMenu();
         showDeleteSubjectWarning(subjectId, subjectName);
     };
-    
+
     // Show delete warning modal
     function showDeleteSubjectWarning(subjectId, subjectName) {
         const modalHtml = `
@@ -3868,7 +3879,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     Esta acción puede afectar a los estudiantes que ya cursaron o están cursando esta materia.
                                 </p>
                             </div>
-                            
+
                             <h6 class="mb-2">Materia a eliminar:</h6>
                             <div class="card bg-light">
                                 <div class="card-body">
@@ -3876,7 +3887,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <span class="badge bg-secondary">${subjectId}</span>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-3">
                                 <p class="fw-bold text-danger mb-2">Se sugiere tener precaución</p>
                                 <ul class="small text-muted mb-0">
@@ -3901,7 +3912,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('deleteSubjectModal');
         if (existingModal) {
@@ -3911,25 +3922,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Show modal
         const modalElement = document.getElementById('deleteSubjectModal');
         const modal = new bootstrap.Modal(modalElement);
-        
+
         modalElement.addEventListener('hidden.bs.modal', function () {
             cleanupModal(modalElement);
         });
-        
+
         modal.show();
     }
-    
+
     // Confirm delete subject
     window.confirmDeleteSubject = function(subjectId) {
         console.log(`confirmDeleteSubject called with ID: ${subjectId}`);
-        
+
         // Close modal
         const modalElement = document.getElementById('deleteSubjectModal');
         if (modalElement) {
@@ -3938,29 +3949,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.hide();
             }
         }
-        
+
         // Find subject card
         const card = document.querySelector(`[data-subject-id="${subjectId}"]`);
         console.log(`Card found:`, card);
-        
+
         if (card) {
             // Check if already marked as removed
             if (card.classList.contains('removed-subject')) {
                 console.warn(`Subject ${subjectId} is already marked as removed, skipping...`);
                 return;
             }
-            
+
             const subjectName = card.querySelector('.subject-name')?.textContent || subjectId;
             const subjectType = card.dataset.type;
-            
+
             console.log(`Subject details: ${subjectName}, type: ${subjectType}`);
-            
+
             // Apply removal preview style
             applyRemovedStyle(card);
-            
+
             // Register as removed change (parameters: subjectId, changeType, newValue, oldValue)
             recordSimulationChange(subjectId, 'removed', null, null);
-            
+
             // If it's a leveling subject, dispatch event for real-time sync
             if (subjectType === 'nivelacion' || isLevelingSubject(subjectId, subjectType)) {
                 const removeEvent = new CustomEvent('levelingSubjectRemoved', {
@@ -3971,32 +3982,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 window.dispatchEvent(removeEvent);
             }
-            
+
             // Update simulation status
             updateSimulationStatus();
-            
+
             // Recalculate credits (removed subjects will subtract credits)
             console.log(`💳 Recalculating credits after removal...`);
             initializeTotalCredits();
-            
+
             // Run automatic impact analysis
             setTimeout(() => {
                 analyzeImpact();
             }, 300);
             updateSimulationStatus();
-            
+
             showSuccessMessage(`Materia marcada para eliminación. Recuerda guardar los cambios.`);
         } else {
             console.error(`Card not found for subject: ${subjectId}`);
         }
     };
-    
+
     // Show prerequisite editor
     function showPrerequisiteEditor(card) {
         const subjectId = card.dataset.subjectId;
         const subjectName = card.querySelector('.subject-name').textContent;
         const currentPrereqs = card.dataset.prerequisites.split(',').filter(p => p.trim());
-        
+
         const modalHtml = `
             <div class="modal fade" id="prereqModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -4007,7 +4018,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="modal-body">
                             <h6 class="mb-3">Materia: <strong>${subjectName}</strong> <span class="badge bg-secondary">${subjectId}</span></h6>
-                            
+
                             <div class="mt-3">
                                 <label class="form-label fw-bold">Prerrequisitos actuales:</label>
                                 <div id="current-prereqs-display" class="border rounded p-3 mb-3" style="background: #f8f9fa; min-height: 60px;">
@@ -4021,7 +4032,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                                 <input type="hidden" id="edit-prereqs-hidden" value="${currentPrereqs.join(',')}">
                             </div>
-                            
+
                             <div class="mt-3">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
@@ -4040,7 +4051,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('prereqModal');
         if (existingModal) {
@@ -4050,10 +4061,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             existingModal.remove();
         }
-        
+
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Show modal with proper event handling
         const modalElement = document.getElementById('prereqModal');
         const modal = new bootstrap.Modal(modalElement, {
@@ -4061,24 +4072,24 @@ document.addEventListener('DOMContentLoaded', function() {
             keyboard: true,
             focus: true
         });
-        
+
         // Add event listeners to ensure proper cleanup
         modalElement.addEventListener('hidden.bs.modal', function () {
             cleanupModal(modalElement);
         });
-        
+
         // Populate initial chips
         populateEditPrerequisiteChips(currentPrereqs);
-        
+
         modal.show();
     }
-    
+
     // Populate chips in edit mode
     function populateEditPrerequisiteChips(prereqCodes) {
         const container = document.getElementById('editPrerequisitesChips');
         if (!container) return;
-        
-        container.innerHTML = prereqCodes.length === 0 
+
+        container.innerHTML = prereqCodes.length === 0
             ? '<span class="text-muted">Sin prerrequisitos</span>'
             : prereqCodes.map(code => {
                 const card = document.querySelector(`[data-subject-id="${code.trim()}"]`);
@@ -4086,13 +4097,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return `
                     <span class="badge bg-primary d-inline-flex align-items-center gap-1 p-2">
                         <strong>${code}</strong>: ${name}
-                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;" 
+                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;"
                                 onclick="removeEditPrerequisiteChip('${code}')" aria-label="Remove"></button>
                     </span>
                 `;
             }).join('');
     }
-    
+
     // Remove chip in edit mode
     window.removeEditPrerequisiteChip = function(code) {
         const hiddenInput = document.getElementById('edit-prereqs-hidden');
@@ -4100,7 +4111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hiddenInput.value = current.join(',');
         populateEditPrerequisiteChips(current);
     };
-    
+
     // Open prerequisite selector for editing
     window.openPrerequisiteSelectorForEdit = function(subjectId) {
         const existingSubjects = Array.from(document.querySelectorAll('.subject-card')).map(card => ({
@@ -4126,8 +4137,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <input type="text" class="form-control" id="editPrerequisiteSearch" 
-                                       placeholder="Buscar por código o nombre de materia..." 
+                                <input type="text" class="form-control" id="editPrerequisiteSearch"
+                                       placeholder="Buscar por código o nombre de materia..."
                                        onkeyup="filterEditPrerequisiteOptions()">
                             </div>
                             <div style="max-height: 400px; overflow-y: auto;" id="editPrerequisiteList">
@@ -4136,7 +4147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     .filter(s => !s.code.startsWith('#'))
                                     .map(subject => `
                                     <div class="prerequisite-option mb-2" data-code="${subject.code}" data-name="${subject.name}">
-                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}" 
+                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}"
                                              style="cursor: pointer; transition: all 0.3s ease;"
                                              data-code="${subject.code}"
                                              data-name="${subject.name}"
@@ -4174,18 +4185,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.insertAdjacentHTML('beforeend', helperHtml);
         const modal = new bootstrap.Modal(document.getElementById('editPrerequisiteSelectorModal'));
-        
+
         document.getElementById('editPrerequisiteSelectorModal').addEventListener('hidden.bs.modal', function() {
             cleanupModal(this);
         });
-        
+
         modal.show();
     };
 
     // Toggle prerequisite selection in edit mode (visual cards)
     window.toggleEditPrerequisiteSelection = function(cardElement) {
         const icon = cardElement.querySelector('.fa-check-circle');
-        
+
         if (cardElement.classList.contains('selected')) {
             // Deselect
             cardElement.classList.remove('selected');
@@ -4201,7 +4212,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filterEditPrerequisiteOptions = function() {
         const searchTerm = document.getElementById('editPrerequisiteSearch').value.toLowerCase();
         const options = document.querySelectorAll('#editPrerequisiteList .prerequisite-option');
-        
+
         options.forEach(option => {
             const code = option.dataset.code.toLowerCase();
             const name = option.dataset.name.toLowerCase();
@@ -4213,25 +4224,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply selected prerequisites in edit mode
     window.applyEditSelectedPrerequisites = function() {
         const selectedCards = Array.from(document.querySelectorAll('#editPrerequisiteList .prerequisite-card.selected'));
-        
+
         // Store codes in hidden input
         const codes = selectedCards.map(card => card.dataset.code);
         document.getElementById('edit-prereqs-hidden').value = codes.join(',');
-        
+
         // Update visual display with chips
         populateEditPrerequisiteChips(codes);
-        
+
         bootstrap.Modal.getInstance(document.getElementById('editPrerequisiteSelectorModal')).hide();
     };
 
     // ===== FUNCTIONS FOR MOVE MODAL PREREQUISITE SELECTOR =====
-    
+
     // Populate chips in move modal
     function populateMovePrerequisiteChips(prereqCodes) {
         const container = document.getElementById('moveSelectedPrerequisites');
         if (!container) return;
-        
-        container.innerHTML = prereqCodes.length === 0 
+
+        container.innerHTML = prereqCodes.length === 0
             ? '<span class="text-muted">Sin prerrequisitos</span>'
             : prereqCodes.map(code => {
                 const card = document.querySelector(`[data-subject-id="${code.trim()}"]`);
@@ -4239,13 +4250,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return `
                     <span class="badge bg-primary d-inline-flex align-items-center gap-1 p-2">
                         <strong>${code}</strong>: ${name}
-                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;" 
+                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;"
                                 onclick="removeMovePrerequisiteChip('${code}')" aria-label="Remove"></button>
                     </span>
                 `;
             }).join('');
     }
-    
+
     // Remove chip in move modal
     window.removeMovePrerequisiteChip = function(code) {
         const hiddenInput = document.getElementById('move-prereqs-hidden');
@@ -4253,7 +4264,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hiddenInput.value = current.join(',');
         populateMovePrerequisiteChips(current);
     };
-    
+
     // Open prerequisite selector for move modal
     window.openMovePrerequisiteSelector = function(subjectId) {
         const existingSubjects = Array.from(document.querySelectorAll('.subject-card')).map(card => ({
@@ -4279,14 +4290,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <input type="text" class="form-control" id="movePrerequisiteSearch" 
-                                       placeholder="Buscar por código o nombre de materia..." 
+                                <input type="text" class="form-control" id="movePrerequisiteSearch"
+                                       placeholder="Buscar por código o nombre de materia..."
                                        onkeyup="filterMovePrerequisiteOptions()">
                             </div>
                             <div style="max-height: 400px; overflow-y: auto;" id="movePrerequisiteList">
                                 ${existingSubjects.filter(s => s.code !== subjectId).map(subject => `
                                     <div class="prerequisite-option mb-2" data-code="${subject.code}" data-name="${subject.name}">
-                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}" 
+                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}"
                                              style="cursor: pointer; transition: all 0.3s ease;"
                                              data-code="${subject.code}"
                                              data-name="${subject.name}"
@@ -4324,18 +4335,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.insertAdjacentHTML('beforeend', helperHtml);
         const modal = new bootstrap.Modal(document.getElementById('movePrerequisiteSelectorModal'));
-        
+
         document.getElementById('movePrerequisiteSelectorModal').addEventListener('hidden.bs.modal', function() {
             cleanupModal(this);
         });
-        
+
         modal.show();
     };
 
     // Toggle prerequisite selection in move modal
     window.toggleMovePrerequisiteSelection = function(cardElement) {
         const icon = cardElement.querySelector('.fa-check-circle');
-        
+
         if (cardElement.classList.contains('selected')) {
             // Deselect
             cardElement.classList.remove('selected');
@@ -4351,7 +4362,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filterMovePrerequisiteOptions = function() {
         const searchTerm = document.getElementById('movePrerequisiteSearch').value.toLowerCase();
         const options = document.querySelectorAll('#movePrerequisiteList .prerequisite-option');
-        
+
         options.forEach(option => {
             const code = option.dataset.code.toLowerCase();
             const name = option.dataset.name.toLowerCase();
@@ -4363,14 +4374,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply selected prerequisites in move modal
     window.applyMoveSelectedPrerequisites = function() {
         const selectedCards = Array.from(document.querySelectorAll('#movePrerequisiteList .prerequisite-card.selected'));
-        
+
         // Store codes in hidden input
         const codes = selectedCards.map(card => card.dataset.code);
         document.getElementById('move-prereqs-hidden').value = codes.join(',');
-        
+
         // Update visual display with chips
         populateMovePrerequisiteChips(codes);
-        
+
         bootstrap.Modal.getInstance(document.getElementById('movePrerequisiteSelectorModal')).hide();
     };
 
@@ -4382,39 +4393,39 @@ document.addEventListener('DOMContentLoaded', function() {
             .split(',')
             .map(p => p.trim())
             .filter(p => p);
-        
+
         const card = document.querySelector(`[data-subject-id="${subjectId}"]`);
         const oldPrereqs = card.dataset.prerequisites.split(',').filter(p => p.trim());
-        
+
         // Check if there are changes
         const hasChanges = JSON.stringify(newPrereqs.sort()) !== JSON.stringify(oldPrereqs.sort());
-        
+
         if (hasChanges) {
             // Update card data
             card.dataset.prerequisites = newPrereqs.join(',');
-            
+
             // Mark card as modified (yellow border)
             card.classList.add('modified');
-            
+
             // Record change
             recordSimulationChange(subjectId, 'prerequisites', newPrereqs.join(','), oldPrereqs.join(','));
-            
+
             // Update unlocks relationships for all subjects
             updateUnlocksRelationships();
-            
+
             // Run automatic impact analysis
             setTimeout(() => {
                 analyzeImpact();
             }, 300);
         }
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('prereqModal'));
         if (modal) {
             modal.hide();
         }
     };
-    
+
     // Open convalidation system
     window.openConvalidation = function() {
         window.location.href = '/convalidation';
@@ -4452,7 +4463,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="subjectCode" class="form-label">Código de la Materia *</label>
-                                            <input type="text" class="form-control" id="subjectCode" required 
+                                            <input type="text" class="form-control" id="subjectCode" required
                                                    placeholder="Ej: MAT101" maxlength="10">
                                             <div class="form-text">Debe ser único</div>
                                         </div>
@@ -4478,28 +4489,28 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="mb-3">
                                     <label for="subjectName" class="form-label">Nombre de la Materia *</label>
-                                    <input type="text" class="form-control" id="subjectName" required 
+                                    <input type="text" class="form-control" id="subjectName" required
                                            placeholder="Ej: Matemáticas Discretas" maxlength="100">
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="subjectCredits" class="form-label">Créditos *</label>
-                                            <input type="number" class="form-control" id="subjectCredits" required 
+                                            <input type="number" class="form-control" id="subjectCredits" required
                                                    min="1" max="10" value="3">
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="subjectClassroomHours" class="form-label">Horas Presenciales *</label>
-                                            <input type="number" class="form-control" id="subjectClassroomHours" required 
+                                            <input type="number" class="form-control" id="subjectClassroomHours" required
                                                    min="1" max="20" value="3">
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="subjectStudentHours" class="form-label">Horas Estudiante *</label>
-                                            <input type="number" class="form-control" id="subjectStudentHours" required 
+                                            <input type="number" class="form-control" id="subjectStudentHours" required
                                                    min="1" max="20" value="6">
                                         </div>
                                     </div>
@@ -4545,7 +4556,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="mb-3">
                                     <label for="subjectDescription" class="form-label">Descripción (opcional)</label>
-                                    <textarea class="form-control" id="subjectDescription" rows="3" 
+                                    <textarea class="form-control" id="subjectDescription" rows="3"
                                               placeholder="Descripción breve de la materia"></textarea>
                                 </div>
                             </form>
@@ -4564,12 +4575,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = new bootstrap.Modal(document.getElementById('addSubjectModal'));
-        
+
         // Clean up when modal is hidden
         document.getElementById('addSubjectModal').addEventListener('hidden.bs.modal', function() {
             cleanupModal(this);
         });
-        
+
         modal.show();
     }
 
@@ -4602,14 +4613,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <input type="text" class="form-control" id="prerequisiteSearch" 
-                                       placeholder="Buscar por código o nombre de materia..." 
+                                <input type="text" class="form-control" id="prerequisiteSearch"
+                                       placeholder="Buscar por código o nombre de materia..."
                                        onkeyup="filterPrerequisiteOptions()">
                             </div>
                             <div style="max-height: 400px; overflow-y: auto;" id="prerequisiteList">
                                 ${existingSubjects.map(subject => `
                                     <div class="prerequisite-option mb-2" data-code="${subject.code}" data-name="${subject.name}">
-                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}" 
+                                        <div class="prerequisite-card p-3 border rounded ${currentPrereqs.includes(subject.code) ? 'selected' : ''}"
                                              style="cursor: pointer; transition: all 0.3s ease;"
                                              data-code="${subject.code}"
                                              data-name="${subject.name}"
@@ -4647,18 +4658,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.insertAdjacentHTML('beforeend', helperHtml);
         const modal = new bootstrap.Modal(document.getElementById('prerequisiteSelectorModal'));
-        
+
         document.getElementById('prerequisiteSelectorModal').addEventListener('hidden.bs.modal', function() {
             cleanupModal(this);
         });
-        
+
         modal.show();
     };
 
     // Toggle prerequisite selection (visual cards)
     window.togglePrerequisiteSelection = function(cardElement) {
         const icon = cardElement.querySelector('.fa-check-circle');
-        
+
         if (cardElement.classList.contains('selected')) {
             // Deselect
             cardElement.classList.remove('selected');
@@ -4674,7 +4685,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filterPrerequisiteOptions = function() {
         const searchTerm = document.getElementById('prerequisiteSearch').value.toLowerCase();
         const options = document.querySelectorAll('.prerequisite-option');
-        
+
         options.forEach(option => {
             const code = option.dataset.code.toLowerCase();
             const name = option.dataset.name.toLowerCase();
@@ -4686,11 +4697,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Apply selected prerequisites (new version)
     window.applySelectedPrerequisitesNew = function() {
         const selectedCards = Array.from(document.querySelectorAll('#prerequisiteList .prerequisite-card.selected'));
-        
+
         // Store codes in hidden input
         const codes = selectedCards.map(card => card.dataset.code);
         document.getElementById('subjectPrerequisites').value = codes.join(',');
-        
+
         // Update visual display with chips
         const container = document.getElementById('selectedPrerequisites');
         container.innerHTML = selectedCards.map(card => {
@@ -4699,12 +4710,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return `
                 <span class="badge bg-primary d-inline-flex align-items-center gap-1 p-2">
                     <strong>${code}</strong>: ${name}
-                    <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;" 
+                    <button type="button" class="btn-close btn-close-white" style="font-size: 0.7rem;"
                             onclick="removePrerequisiteChip('${code}')" aria-label="Remove"></button>
                 </span>
             `;
         }).join('');
-        
+
         bootstrap.Modal.getInstance(document.getElementById('prerequisiteSelectorModal')).hide();
     };
 
@@ -4713,7 +4724,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const current = document.getElementById('subjectPrerequisites').value
             .split(',').filter(p => p.trim() && p.trim() !== code);
         document.getElementById('subjectPrerequisites').value = current.join(',');
-        
+
         // Update visual display
         const chip = event.target.closest('.badge');
         if (chip) chip.remove();
@@ -4750,8 +4761,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Process prerequisites - convert comma-separated codes to array
-        const prerequisiteArray = prerequisites 
-            ? prerequisites.split(',').map(p => p.trim().toUpperCase()).filter(p => p) 
+        const prerequisiteArray = prerequisites
+            ? prerequisites.split(',').map(p => p.trim().toUpperCase()).filter(p => p)
             : [];
 
         // Validate that prerequisite codes exist (optional validation)
@@ -4788,37 +4799,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const studentHours = parseInt(document.getElementById('subjectStudentHours').value) || 0;
         const type = document.getElementById('subjectType').value || 'profesional';
         const isRequired = document.getElementById('subjectRequired').value === 'true';
-        
-        const prerequisiteArray = prerequisites 
-            ? prerequisites.split(',').map(p => p.trim().toUpperCase()).filter(p => p) 
+
+        const prerequisiteArray = prerequisites
+            ? prerequisites.split(',').map(p => p.trim().toUpperCase()).filter(p => p)
             : [];
 
         // Create the new subject card
         const newSubjectCard = createSubjectCard(code, name, semester, prerequisiteArray.join(','), description, credits, classroomHours, studentHours, type, isRequired);
-        
+
         // Add to the appropriate semester column
         const semesterColumn = document.querySelector(`[data-semester="${semester}"] .subject-list`);
         if (!semesterColumn) {
             showAlertModal(`No se encontró la columna del semestre ${semester}. Verifique que el semestre exista.`, 'error', 'Error de Semestre');
             return;
         }
-        
+
         // Always add new subjects at the end of the semester
         semesterColumn.appendChild(newSubjectCard);
-        
+
         // Recalculate display_order for all cards in this semester (silent - no tracking)
         recalculateDisplayOrder(semester, false);
-        
+
         // Update credits (check if it's a leveling subject)
         const creditsNum = parseInt(credits) || 0;
         totalCredits += creditsNum;
-        
+
         // Only add to career credits if it's NOT a leveling subject
         const isLeveling = isLevelingSubject(code, type);
         if (!isLeveling) {
             careerCredits += creditsNum;
         }
-        
+
         updateCreditsDisplay();
 
         // Update drag and drop functionality
@@ -4845,23 +4856,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Show success message
         showSuccessMessage(`Materia "${name}" (${code}) agregada exitosamente al semestre ${semester}`);
-        
+
         // Run automatic impact analysis
         setTimeout(() => {
             analyzeImpact();
         }, 300);
-        
+
         console.log(`New subject added: ${code} - ${name}, Prerequisites: [${prerequisiteArray.join(', ')}]`);
     };
 
     // Create subject card HTML
     function createSubjectCard(code, name, semester, prerequisites, description, credits = 3, classroomHours = 3, studentHours = 6, type = 'profesional', isRequired = true) {
         const card = document.createElement('div');
-        
+
         // Check if this is a leveling subject (from database or by type)
         const isLeveling = isLevelingSubject(code, type);
         const actualType = isLeveling ? 'nivelacion' : type;
-        
+
         card.className = `subject-card ${actualType} added-subject`;
         card.dataset.subjectId = code;
         card.dataset.type = actualType;
@@ -4869,7 +4880,7 @@ document.addEventListener('DOMContentLoaded', function() {
         card.dataset.unlocks = '';
         card.title = description || name;
 
-        const iconSvg = isRequired 
+        const iconSvg = isRequired
             ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>'
             : '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
 
@@ -4908,7 +4919,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update unlocks relationships when new subjects are added
     function updateUnlocksRelationships() {
         console.log('[UPDATE] Updating unlocks relationships...');
-        
+
         // Clear all existing unlocks (exclude ghosts)
         document.querySelectorAll('.subject-card:not(.moved-ghost)').forEach(card => {
             card.dataset.unlocks = '';
@@ -4918,11 +4929,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.subject-card:not(.moved-ghost)').forEach(card => {
             const subjectCode = card.dataset.subjectId;
             const prerequisites = card.dataset.prerequisites.split(',').filter(p => p.trim());
-            
+
             if (prerequisites.length > 0) {
                 console.log(`Subject ${subjectCode} has prerequisites: [${prerequisites.join(', ')}]`);
             }
-            
+
             // For each prerequisite, add this subject to their unlocks
             prerequisites.forEach(prereqCode => {
                 const prereqCard = document.querySelector(`[data-subject-id="${prereqCode}"]:not(.moved-ghost)`);
@@ -4938,23 +4949,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
-        
+
         console.log('Unlocks relationships updated');
     }
 
     // Get current curriculum state for export
     function getCurrentCurriculumState() {
         const curriculum = {};
-        
+
         for (let semester = 1; semester <= 10; semester++) {
             const semesterColumn = document.querySelector(`[data-semester="${semester}"]`);
             if (!semesterColumn) continue;
-            
+
             // CRITICAL: Exclude ghosts (.moved-ghost) to avoid duplicate entries with wrong semester
             const subjects = Array.from(semesterColumn.querySelectorAll('.subject-card:not(.moved-ghost)')).map((card, index) => {
                 // Extract credits from multiple possible sources
                 let credits = 3; // Default value
-                
+
                 // Try 1: From data attribute (most reliable)
                 if (card.dataset.credits) {
                     credits = parseInt(card.dataset.credits);
@@ -4970,31 +4981,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-                
+
                 // Extract other metadata
                 const classroomHours = card.dataset.classroomHours ? parseInt(card.dataset.classroomHours) : null;
                 const studentHours = card.dataset.studentHours ? parseInt(card.dataset.studentHours) : null;
                 const subjectType = card.dataset.type || null;
                 const subjectCode = card.dataset.subjectId;
-                
+
                 // Check if this subject was removed
                 const isRemoved = card.classList.contains('removed-subject');
                 const isMoved = card.classList.contains('moved-subject');
-                
+
                 // Get original semester for moved subjects from simulationChanges
                 let originalSemester = null;
                 if (isMoved) {
-                    const moveChange = simulationChanges.find(c => 
+                    const moveChange = simulationChanges.find(c =>
                         c.subject_code === subjectCode && c.type === 'semester'
                     );
                     if (moveChange) {
                         originalSemester = moveChange.old_value;
                     }
                 }
-                
+
                 // Get display_order from dataset or use current position (index)
                 const displayOrder = card.dataset.displayOrder ? parseInt(card.dataset.displayOrder) : index;
-                
+
                 return {
                     code: subjectCode,
                     name: card.querySelector('.subject-name')?.textContent.trim() || 'Sin nombre',
@@ -5012,19 +5023,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     description: card.title || card.querySelector('.subject-name')?.textContent.trim() || 'Sin descripción'
                 };
             });
-            
+
             if (subjects.length > 0) {
                 curriculum[semester] = subjects;
             }
         }
-        
+
         return curriculum;
     }
 
     // Show export modal
     function showExportModal(curriculum) {
         const totalSubjects = Object.values(curriculum).reduce((total, subjects) => total + subjects.length, 0);
-        const addedSubjects = Object.values(curriculum).reduce((total, subjects) => 
+        const addedSubjects = Object.values(curriculum).reduce((total, subjects) =>
             total + subjects.filter(s => s.isAdded).length, 0);
 
         const modalHtml = `
@@ -5062,28 +5073,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             <div class="mb-3">
                                 <label for="exportName" class="form-label">Nombre de la Exportación</label>
-                                <input type="text" class="form-control" id="exportName" 
+                                <input type="text" class="form-control" id="exportName"
                                        value="Malla_Modificada_${new Date().toISOString().split('T')[0]}"
                                        placeholder="Nombre del archivo/configuración">
                             </div>
 
                             <ul class="nav nav-tabs" id="exportTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="preview-tab" data-bs-toggle="tab" 
+                                    <button class="nav-link active" id="preview-tab" data-bs-toggle="tab"
                                             data-bs-target="#preview" type="button" role="tab">
                                         <i class="fas fa-eye me-1"></i>
                                         Vista Previa
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="json-tab" data-bs-toggle="tab" 
+                                    <button class="nav-link" id="json-tab" data-bs-toggle="tab"
                                             data-bs-target="#json" type="button" role="tab">
                                         <i class="fas fa-code me-1"></i>
                                         JSON
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="changes-tab" data-bs-toggle="tab" 
+                                    <button class="nav-link" id="changes-tab" data-bs-toggle="tab"
                                             data-bs-target="#changes" type="button" role="tab">
                                         <i class="fas fa-list me-1"></i>
                                         Cambios
@@ -5121,18 +5132,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = new bootstrap.Modal(document.getElementById('exportModal'));
-        
+
         document.getElementById('exportModal').addEventListener('hidden.bs.modal', function() {
             cleanupModal(this);
         });
-        
+
         modal.show();
     }
 
     // Generate curriculum preview HTML
     function generateCurriculumPreview(curriculum) {
         let html = '<div class="row">';
-        
+
         for (let semester = 1; semester <= 10; semester++) {
             const subjects = curriculum[semester] || [];
             html += `
@@ -5157,7 +5168,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
-        
+
         html += '</div>';
         return html;
     }
@@ -5169,7 +5180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         let html = '<div class="list-group">';
-        
+
         simulationChanges.forEach((change, index) => {
             const typeLabel = {
                 'semester': 'Cambio de Semestre',
@@ -5191,7 +5202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         });
-        
+
         html += '</div>';
         return html;
     }
@@ -5200,7 +5211,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.downloadAsJSON = function() {
         const curriculum = getCurrentCurriculumState();
         const exportName = document.getElementById('exportName').value || 'malla_curricular';
-        
+
         const dataStr = JSON.stringify({
             exportName: exportName,
             exportDate: new Date().toISOString(),
@@ -5209,14 +5220,14 @@ document.addEventListener('DOMContentLoaded', function() {
             metadata: {
                 totalSubjects: Object.values(curriculum).reduce((total, subjects) => total + subjects.length, 0),
                 totalChanges: simulationChanges.length,
-                addedSubjects: Object.values(curriculum).reduce((total, subjects) => 
+                addedSubjects: Object.values(curriculum).reduce((total, subjects) =>
                     total + subjects.filter(s => s.isAdded).length, 0)
             }
         }, null, 2);
-        
+
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement('a');
         a.href = url;
         a.download = `${exportName}.json`;
@@ -5224,17 +5235,17 @@ document.addEventListener('DOMContentLoaded', function() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         showSuccessMessage('Archivo JSON descargado exitosamente');
     };
 
     // Save to convalidation system
     window.saveToConvalidation = function() {
-        const exportName = document.getElementById('exportName')?.value.trim() || 
+        const exportName = document.getElementById('exportName')?.value.trim() ||
                           `Malla_Modificada_${new Date().toISOString().split('T')[0]}`;
-        
+
         const curriculum = getCurrentCurriculumState();
-        
+
         // Show loading state
         const saveButton = document.querySelector('button[onclick="saveToConvalidation()"]');
         const originalText = saveButton.innerHTML;
@@ -5294,16 +5305,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show success message
     function showSuccessMessage(message) {
         const alertHtml = `
-            <div class="alert alert-success alert-dismissible fade show position-fixed" 
+            <div class="alert alert-success alert-dismissible fade show position-fixed"
                  style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', alertHtml);
-        
+
         // Auto-remove after 5 seconds
         setTimeout(() => {
             const alert = document.querySelector('.alert-success');
@@ -5335,23 +5346,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         </a>
                     </li>
                 `;
-                
+
                 // Add saved versions
                 if (data.versions && data.versions.length > 0) {
                     items += '<li><hr class="dropdown-divider"></li>';
                     items += '<li><h6 class="dropdown-header">Versiones Guardadas</h6></li>';
-                    
+
                     data.versions.forEach(version => {
                         const date = new Date(version.created_at).toLocaleDateString('es-ES');
                         const isCurrent = version.is_current ? ' ' : '';
                         items += `
                             <li>
                                 <div class="dropdown-item d-flex justify-content-between align-items-center p-0">
-                                    <a href="#" class="flex-grow-1 text-decoration-none text-dark px-3 py-2" 
+                                    <a href="#" class="flex-grow-1 text-decoration-none text-dark px-3 py-2"
                                        onclick="loadCurriculumVersion('${version.id}'); return false;">
                                         v${version.version_number}${isCurrent} - ${date}
                                     </a>
-                                    <button class="btn btn-sm btn-link text-danger p-2" 
+                                    <button class="btn btn-sm btn-link text-danger p-2"
                                             onclick="event.stopPropagation(); deleteVersion(${version.id}); return false;"
                                             title="Eliminar versión">
                                         <i class="fas fa-trash"></i>
@@ -5376,10 +5387,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.saveCurrentCurriculum = async function() {
         // Verify if there are ANY changes at all
         const hasAnyChanges = simulationChanges && simulationChanges.length > 0;
-        const meaningfulChanges = simulationChanges.filter(c => 
+        const meaningfulChanges = simulationChanges.filter(c =>
             c.type !== 'display_order' && c.type !== 'semester_order'
         );
-        
+
         if (!hasAnyChanges || meaningfulChanges.length === 0) {
             showAlertModal(
                 'No hay cambios pendientes para guardar.\n\nDebes realizar al menos una modificación a la malla antes de poder guardarla.',
@@ -5388,20 +5399,20 @@ document.addEventListener('DOMContentLoaded', function() {
             );
             return;
         }
-        
+
         // Check if convalidation is required and complete
         const hasAddedSubjects = simulationChanges.some(c => c.type === 'added');
         const hasRemovedSubjects = simulationChanges.some(c => c.type === 'removed');
         const requiresConvalidation = hasAddedSubjects || hasRemovedSubjects;
-        
+
         if (requiresConvalidation) {
             // Double-check convalidation status (button should already be disabled if not complete)
             const baseVersion = getBaseCurriculumVersion();
             const existingConvalidations = baseVersion?.convalidations || [];
-            
+
             if (existingConvalidations.length > 0) {
                 const lastConvalidation = existingConvalidations[existingConvalidations.length - 1];
-                
+
                 try {
                     const statusResponse = await fetch('/convalidation/check-status', {
                         method: 'POST',
@@ -5412,9 +5423,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         body: JSON.stringify({ curriculum_id: lastConvalidation.curriculum_id })
                     });
-                    
+
                     const statusData = await statusResponse.json();
-                    
+
                     if (!statusData.success || !statusData.exists || !statusData.is_complete) {
                         showAlertModal(
                             'Debes completar la convalidación antes de guardar la malla.\n\nUsa el botón "Convalidar" para continuar.',
@@ -5441,11 +5452,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         }
-        
+
         // All validations passed - proceed with save
         proceedWithSave();
     };
-    
+
     /**
      * Show modal asking to continue existing convalidation or create new one
      */
@@ -5492,36 +5503,36 @@ Ya existe una convalidación para esta versión de la malla:
                 </div>
             </div>
         `;
-        
+
         // Remove existing modal if any
         const existingModal = document.getElementById('convalidationChoiceModal');
         if (existingModal) existingModal.remove();
-        
+
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = new bootstrap.Modal(document.getElementById('convalidationChoiceModal'));
-        
+
         // Handle continue existing convalidation
         document.getElementById('btnContinueConvalidation').addEventListener('click', function() {
             modal.hide();
             window.location.href = statusData.redirect_url;
         });
-        
+
         // Handle create new convalidation
         document.getElementById('btnNewConvalidation').addEventListener('click', function() {
             modal.hide();
             createNewConvalidation();
         });
-        
+
         modal.show();
     }
-    
+
     /**
      * Show modal for new convalidation (no existing one)
      */
     function showNewConvalidationModal() {
         const hasAddedSubjects = simulationChanges.some(c => c.type === 'added');
         const hasRemovedSubjects = simulationChanges.some(c => c.type === 'removed');
-        
+
         const message = `CONVALIDACIÓN REQUERIDA
 
 Has ${hasAddedSubjects ? 'agregado' : ''}${hasAddedSubjects && hasRemovedSubjects ? ' y ' : ''}${hasRemovedSubjects ? 'eliminado' : ''} materias.
@@ -5530,7 +5541,7 @@ Antes de guardar la versión, debes convalidar todas las materias de la nueva ma
 
 Serás redirigido al apartado de convalidación.
 Una vez completada la convalidación (100%), podrás guardar la nueva versión de la malla.`;
-        
+
         showConfirmModal(
             message,
             function() {
@@ -5542,7 +5553,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
             'Cancelar'
         );
     }
-    
+
     /**
      * Create a new convalidation and redirect to it
      * Also deletes any existing convalidations linked to this base version
@@ -5550,7 +5561,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
     async function createNewConvalidation() {
         const exportName = `Malla_Modificada_${new Date().toISOString().split('T')[0]}`;
         const curriculum = getCurrentCurriculumState();
-        
+
         // Show loading
         showLoadingModal('Preparando nueva convalidación...');
         const originalButton = document.querySelector('button[onclick="saveCurrentCurriculum()"]');
@@ -5558,14 +5569,14 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
             originalButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exportando...';
             originalButton.disabled = true;
         }
-        
+
         // First, delete any existing convalidations linked to this base version
         const baseVersion = getBaseCurriculumVersion();
         const existingConvalidations = baseVersion?.convalidations || [];
-        
+
         if (existingConvalidations.length > 0) {
             console.log('Deleting existing convalidations:', existingConvalidations.map(c => c.curriculum_id));
-            
+
             // Delete each existing convalidation from backend
             for (const conv of existingConvalidations) {
                 try {
@@ -5576,7 +5587,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
                             'Accept': 'application/json'
                         }
                     });
-                    
+
                     if (deleteResponse.ok) {
                         console.log(`Deleted convalidation ${conv.curriculum_id}`);
                     } else {
@@ -5586,16 +5597,16 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
                     console.warn(`Error deleting convalidation ${conv.curriculum_id}:`, error);
                 }
             }
-            
+
             // Clear convalidations from base version in localStorage
             baseVersion.convalidations = [];
             updateBaseCurriculumVersion(baseVersion);
             console.log('Cleared convalidations from base version');
         }
-        
+
         // Now create the new convalidation
         showLoadingModal('Exportando malla para convalidación...');
-        
+
         // Prepare payload
         const payload = {
             name: exportName,
@@ -5604,7 +5615,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
             changes: simulationChanges,
             _token: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         };
-        
+
         // Send to backend
         fetch('/convalidation/save-modified-curriculum', {
             method: 'POST',
@@ -5622,7 +5633,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
                 if (data.curriculum_id) {
                     localStorage.setItem('current_external_curriculum_id', data.curriculum_id);
                     console.log('Saved external curriculum ID for convalidation:', data.curriculum_id);
-                    
+
                     // Mark all added/removed changes as exported
                     simulationChanges.forEach(change => {
                         if (change.type === 'added' || change.type === 'removed') {
@@ -5631,27 +5642,27 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
                     });
                     saveChangesToStorage();
                 }
-                
+
                 // Save the redirect URL
                 if (data.redirect_url) {
                     localStorage.setItem('convalidation_redirect_url', data.redirect_url);
                 }
-                
+
                 // Link to current base version
                 if (data.curriculum_id && data.redirect_url) {
                     addConvalidationToBaseVersion(data.curriculum_id, data.redirect_url);
                     const baseVersion = getBaseCurriculumVersion();
                     console.log(`Convalidación vinculada a la versión base ${baseVersion.version_number}`);
                 }
-                
+
                 showSuccessMessage('Malla exportada. Redirigiendo a convalidación...');
-                
+
                 // Store pending save flag
                 sessionStorage.setItem('pendingSave', JSON.stringify({
                     description: 'Versión con convalidaciones completadas',
                     exportedAt: new Date().toISOString()
                 }));
-                
+
                 // Redirect to convalidation
                 setTimeout(() => {
                     window.location.href = data.redirect_url;
@@ -5663,7 +5674,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
         .catch(error => {
             console.error('Error:', error);
             showAlertModal(`No se pudo exportar la malla: ${error.message}`, 'error', 'Error al Exportar');
-            
+
             // Restore button
             if (originalButton) {
                 originalButton.innerHTML = '<i class="fas fa-save me-1"></i>Guardar Malla';
@@ -5671,7 +5682,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
             }
         });
     }
-    
+
     /**
      * Proceed with saving after convalidation is complete or no convalidation needed
      */
@@ -5690,7 +5701,7 @@ Una vez completada la convalidación (100%), podrás guardar la nueva versión d
             }[type] || type;
             return `  • ${count} materia${count > 1 ? 's' : ''} ${typeLabel}`;
         }).join('\n');
-        
+
         const securityMessage = `ESTÁS A PUNTO DE GUARDAR CAMBIOS PERMANENTES A LA MALLA CURRICULAR
 
 IMPORTANTE:
@@ -5731,7 +5742,7 @@ Ejemplo de descripción:
             'CONFIRMACIÓN DE GUARDADO PERMANENTE'
         );
     }
-    
+
     /**
      * Internal function to perform the actual curriculum save
      * Separated to allow pre-save validations and confirmations
@@ -5748,19 +5759,19 @@ Ejemplo de descripción:
         document.querySelectorAll('.subject-card:not(.moved-ghost)').forEach(card => {
             const semester = card.closest('.semester-column')?.dataset.semester;
             const subjectCode = card.dataset.subjectId;
-            const prerequisites = card.dataset.prerequisites ? 
-                card.dataset.prerequisites.split(',').map(p => p.trim()).filter(p => p) : 
+            const prerequisites = card.dataset.prerequisites ?
+                card.dataset.prerequisites.split(',').map(p => p.trim()).filter(p => p) :
                 [];
 
             // CRITICAL: Include isAdded, isRemoved, and isMoved flags
             const isAdded = card.classList.contains('added-subject');
             const isRemoved = card.classList.contains('removed-subject');
             const isMoved = card.classList.contains('moved-subject');
-            
+
             // Get original semester for moved subjects
             let originalSemester = null;
             if (isMoved) {
-                const moveChange = simulationChanges.find(c => 
+                const moveChange = simulationChanges.find(c =>
                     c.subject_code === subjectCode && c.type === 'semester'
                 );
                 if (moveChange) {
@@ -5789,12 +5800,12 @@ Ejemplo de descripción:
             description: description,
             curriculum_data: curriculumData
         };
-        
+
         // Include external_curriculum_id if available (for PDF generation)
         const externalCurriculumId = localStorage.getItem('current_external_curriculum_id');
         if (externalCurriculumId) {
             requestData.external_curriculum_id = parseInt(externalCurriculumId);
-            
+
             // Try to get the saved report HTML from sessionStorage
             const reportHtml = sessionStorage.getItem('convalidation_report_html_' + externalCurriculumId);
             if (reportHtml) {
@@ -5804,17 +5815,17 @@ Ejemplo de descripción:
                 console.log('No se encontró reporte PDF en sessionStorage, se generará versión simplificada');
             }
         }
-        
+
         // DEBUG: Log what we're sending
         console.log('=== SAVE CURRICULUM DEBUG ===');
         console.log('simulationChanges:', simulationChanges);
         console.log('Moved subjects:', curriculumData.subjects.filter(s => s.isMoved));
         console.log('Changes in payload:', curriculumData.changes);
         console.log('=============================');
-        
+
         // Show loading indicator
         const loadingModal = showLoadingModal('Guardando cambios, por favor espere...');
-        
+
         fetch('/simulation/versions/save', {
             method: 'POST',
             headers: {
@@ -5827,23 +5838,24 @@ Ejemplo de descripción:
         .then(data => {
             // Hide loading indicator
             hideLoadingModal(loadingModal);
-            
+
             if (data.success) {
                 showSuccessMessage(data.message || 'Cambios guardados correctamente');
-                
+
                 // Reload versions list
                 loadVersionsList();
-                
+
                 // Clear simulation changes since we just saved
                 simulationChanges = [];
-                
+                window.hasUnsavedChanges = false; // Reset unsaved changes flag
+
                 // Clear from localStorage
                 clearStoredChanges();
-                
+
                 // Clear external curriculum ID and redirect URL since we successfully saved
                 localStorage.removeItem('current_external_curriculum_id');
                 localStorage.removeItem('convalidation_redirect_url');
-                
+
                 // Create a new base curriculum version since we saved permanently
                 const currentBase = getBaseCurriculumVersion();
                 const newVersionNumber = currentBase.version_number + 1;
@@ -5854,9 +5866,9 @@ Ejemplo de descripción:
                     description || `Versión ${newVersionNumber} - ${new Date().toLocaleDateString('es-ES')}`
                 );
                 console.log(`Nueva versión base creada: v${newVersionNumber}. Las futuras convalidaciones se vincularán a esta versión.`);
-                
+
                 updateSimulationStatus();
-                
+
                 // Optional: Reload page to show updated curriculum
                 setTimeout(() => {
                     window.location.reload();
@@ -5868,7 +5880,7 @@ Ejemplo de descripción:
         .catch(error => {
             // Hide loading indicator
             hideLoadingModal(loadingModal);
-            
+
             console.error('Error saving version:', error);
             showAlertModal(`Error al guardar la versión: ${error.message}`, 'error', 'Error al Guardar');
         });
@@ -5900,7 +5912,7 @@ Ejemplo de descripción:
                         const date = new Date(data.version.created_at).toLocaleDateString('es-ES');
                         currentVersionText.textContent = `v${data.version.version_number} - ${date}`;
                     }
-                    
+
                     // Show info about viewing old version
                     const versionInfo = `
                         <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -5911,13 +5923,13 @@ Ejemplo de descripción:
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     `;
-                    
+
                     const controls = document.querySelector('.curriculum-controls');
                     controls.insertAdjacentHTML('afterend', versionInfo);
 
                     // Rebuild curriculum grid with version data
                     rebuildCurriculumFromVersion(data.version);
-                    
+
                     // Disable editing for old versions
                     disableEditingMode();
                 } else {
@@ -5935,7 +5947,7 @@ Ejemplo de descripción:
      */
     function rebuildCurriculumFromVersion(version) {
         const subjects = version.curriculum_data.subjects || [];
-        
+
         // Clear all subject lists
         document.querySelectorAll('.subject-list').forEach(list => {
             list.innerHTML = '';
@@ -5964,7 +5976,7 @@ Ejemplo de descripción:
 
         // Update credits display
         updateCreditsDisplay();
-        
+
         // Update prerequisites relationships
         updateUnlocksRelationships();
     }
@@ -6010,7 +6022,7 @@ Ejemplo de descripción:
             showAlertModal('ID de versión no válido. No se puede proceder con la eliminación.', 'error', 'Error de Versión');
             return;
         }
-        
+
         // Get version info for confirmation
         fetch(`/simulation/versions`)
             .then(response => response.json())
@@ -6020,10 +6032,10 @@ Ejemplo de descripción:
                     showAlertModal('La versión seleccionada no se encontró en el sistema.', 'error', 'Versión No Encontrada');
                     return;
                 }
-                
+
                 const date = new Date(version.created_at).toLocaleDateString('es-ES');
                 const versionName = `v${version.version_number} - ${date}`;
-                
+
                 // Show confirmation modal
                 showConfirmModal(
                     `¿Estás seguro que deseas eliminar la versión "${versionName}"?\n\nADVERTENCIA: Esta acción NO se puede deshacer.\n\nSe eliminará permanentemente esta versión del historial.`,
@@ -6040,10 +6052,10 @@ Ejemplo de descripción:
                         .then(data => {
                             if (data.success) {
                                 showSuccessMessage(`Versión "${versionName}" eliminada correctamente`);
-                                
+
                                 // Reload versions list
                                 loadVersionsList();
-                                
+
                                 // Reset to current version if needed
                                 const currentVersionText = document.getElementById('currentVersionText');
                                 if (currentVersionText) {
@@ -6075,39 +6087,39 @@ Ejemplo de descripción:
         // Check if body has modal-open but no visible modals
         if (document.body.classList.contains('modal-open')) {
             const visibleModals = document.querySelectorAll('.modal.show');
-            
+
             // If no modals are visible but body is marked as modal-open, clean up
             if (visibleModals.length === 0) {
                 console.log('Detected stuck modal state, cleaning up...');
-                
+
                 // Clean body
                 document.body.classList.remove('modal-open');
                 document.body.style.removeProperty('overflow');
                 document.body.style.removeProperty('padding-right');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
-                
+
                 // Clean grid
                 const curriculumGrid = document.querySelector('.curriculum-grid');
                 if (curriculumGrid) {
                     curriculumGrid.style.setProperty('overflow-x', 'auto', 'important');
                     curriculumGrid.style.setProperty('overflow-y', 'visible', 'important');
                 }
-                
+
                 // Remove backdrops
                 document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-                
+
                 console.log('Scroll fixed automatically');
             }
         }
     });
-    
+
     // Start watching body for class changes
     scrollFixWatcher.observe(document.body, {
         attributes: true,
         attributeFilter: ['class', 'style']
     });
-    
+
     console.log('Scroll fix watcher initialized');
 
     // Debug: Verify functions are available
@@ -6119,36 +6131,36 @@ Ejemplo de descripción:
 
     // Initialize simulation when page loads
     initializeSimulation();
-    
+
     // Update button states after initialization
     setTimeout(() => {
         updateConvalidationButtonStates();
     }, 500);
-    
+
     // ============================================
     // BIDIRECTIONAL SYNC: Listen for changes from other sources
     // ============================================
-    
+
     /**
      * Listen for custom events from leveling-subjects module
      * This enables real-time synchronization when editing from /leveling-subjects
      */
     window.addEventListener('levelingSubjectUpdated', function(e) {
         const { code, name, credits, classroomHours, studentHours, description, updatedLocalStorage } = e.detail;
-        
+
         // Find the card in the DOM (works for both official and temporary subjects)
         const card = document.querySelector(`[data-subject-id="${code}"]`);
-        
+
         if (card) {
             // Update name
             const nameElement = card.querySelector('.subject-name');
             if (nameElement) {
                 nameElement.textContent = name;
             }
-            
+
             // Update title/description
             card.title = description || name;
-            
+
             // Update credits and hours (info-values in header)
             const infoValues = card.querySelectorAll('.subject-card-header .info-value');
             if (infoValues.length >= 3) {
@@ -6156,14 +6168,14 @@ Ejemplo de descripción:
                 infoValues[1].textContent = classroomHours;
                 infoValues[2].textContent = studentHours;
             }
-            
+
             // Add visual indicator for edited leveling subject
             card.classList.add('edited-subject');
-            
+
             // Recalculate credits display
             updateCreditsDisplay();
         }
-        
+
         // If localStorage was updated, also reload the changes array
         if (updatedLocalStorage) {
             const updatedChanges = loadChangesFromStorage();
@@ -6171,30 +6183,30 @@ Ejemplo de descripción:
                 simulationChanges = updatedChanges;
             }
         }
-        
+
         // Update simulation status to reflect the change
         updateSimulationStatus();
     });
-    
+
     /**
      * Listen for leveling subject removal events
      * This enables real-time removal preview when deleting from /leveling-subjects
      */
     window.addEventListener('levelingSubjectRemoved', function(e) {
         const { code, name } = e.detail;
-        
+
         // Find the card in the DOM
         const card = document.querySelector(`[data-subject-id="${code}"]`);
-        
+
         if (card) {
             // Apply removal preview styles
             applyRemovedStyle(card);
-            
+
             // Add to simulationChanges array
-            const existingIndex = simulationChanges.findIndex(c => 
+            const existingIndex = simulationChanges.findIndex(c =>
                 c.type === 'removed' && c.subject_code === code
             );
-            
+
             if (existingIndex === -1) {
                 simulationChanges.push({
                     type: 'removed',
@@ -6205,12 +6217,12 @@ Ejemplo de descripción:
                     timestamp: new Date().toISOString()
                 });
             }
-            
+
             // Update simulation status
             updateSimulationStatus();
         }
     });
-    
+
     /**
      * Listen for localStorage changes from other tabs (cross-tab sync)
      * This enables synchronization across different browser tabs
@@ -6218,17 +6230,17 @@ Ejemplo de descripción:
     window.addEventListener('storage', function(e) {
         if (e.key === STORAGE_KEY) {
             console.log('Storage change detected in simulation.js');
-            
+
             // Reload changes and update the simulation view
             const updatedChanges = loadChangesFromStorage();
             if (!updatedChanges) return;
-            
+
             simulationChanges = updatedChanges;
-            
+
             // Update only the affected cards (don't reload the whole page)
             updatedChanges.forEach(change => {
                 const card = document.querySelector(`[data-subject-id="${change.subject_code}"]`);
-                
+
                 if (change.type === 'added' && card) {
                     // Update card content with new data
                     const data = change.new_value;
@@ -6239,15 +6251,15 @@ Ejemplo de descripción:
                     console.log('Applying edit style to card:', change.subject_code);
                     // Apply yellow styling for edits from leveling-subjects page
                     card.classList.add('edited-subject');
-                    
+
                     // Update card content if new_value exists
                     if (change.new_value) {
                         const nameEl = card.querySelector('.subject-name');
                         const creditsEl = card.querySelector('.subject-credits');
-                        
+
                         if (nameEl) nameEl.textContent = change.new_value.name;
                         if (creditsEl) creditsEl.textContent = `${change.new_value.credits} créditos`;
-                        
+
                         // Update tooltip/title if it exists
                         const tooltipTitle = card.querySelector('[title]');
                         if (tooltipTitle && change.new_value.name) {
@@ -6260,12 +6272,12 @@ Ejemplo de descripción:
                     applyRemovedStyle(card);
                 }
             });
-            
+
             // Update simulation status display
             updateSimulationStatus();
         }
     });
-    
+
     /**
      * Update a subject card with new data from localStorage
      */
@@ -6275,12 +6287,12 @@ Ejemplo de descripción:
         if (nameElement && data.name) {
             nameElement.textContent = data.name;
         }
-        
+
         // Update title/description
         if (data.description) {
             card.title = data.description;
         }
-        
+
         // Update credits (first info-value in header)
         const infoValues = card.querySelectorAll('.subject-card-header .info-value');
         if (infoValues.length >= 3) {
@@ -6294,11 +6306,11 @@ Ejemplo de descripción:
                 infoValues[2].textContent = data.studentHours;
             }
         }
-        
+
         // Recalculate credits display
         updateCreditsDisplay();
     }
-    
+
     /**
      * Apply removal preview style to a subject card
      * This shows the user that the subject is marked for deletion
@@ -6306,26 +6318,26 @@ Ejemplo de descripción:
     function applyRemovedStyle(card) {
         const subjectCode = card.dataset.subjectId || 'unknown';
         console.log(`Applying removed style to: ${subjectCode}`);
-        
+
         // Add removed-subject class for credit calculation
         card.classList.add('removed-subject');
-        
+
         // Set opacity and disable interactions
         card.style.opacity = '0.5';
         card.style.pointerEvents = 'none';
         card.setAttribute('data-removed', 'true');
-        
+
         // Add red border
         card.style.border = '2px solid #dc3545';
         card.style.boxShadow = '0 0 10px rgba(220, 53, 69, 0.3)';
-        
+
         // Strike through the name
         const nameElement = card.querySelector('.subject-name');
         if (nameElement) {
             nameElement.style.textDecoration = 'line-through';
             nameElement.style.color = '#dc3545';
         }
-        
+
         // Add removed badge if not exists
         if (!card.querySelector('.removed-badge')) {
             const badge = document.createElement('div');

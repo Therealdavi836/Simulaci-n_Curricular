@@ -31,7 +31,7 @@
 
     <body class="gradient-animation min-h-screen flex items-center justify-center p-4">
         <div class="container mx-auto flex flex-col md:flex-row items-stretch justify-center gap-12">
-            <div class="login-card glass-effect rounded-2xl shadow-2xl w-full max-w-md p-8 flex items-center justify-center">
+            <div class="login-card background white rounded-2xl shadow-2xl w-full max-w-md p-8 flex items-center justify-center" style="background-color: white;">
                 <a href="https://unal.edu.co" target="_blank">
                     <img src="{{ asset('images/logosimbolo.png') }}" alt="Escudo UNAL" class="w-full h-auto max-h-80 object-contain">
                 </a>
@@ -44,13 +44,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
                     </div>
-                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    <h1 class="text-3xl font-bold text-white mb-2">
                         Bienvenido/a
                     </h1>
-                    <p class="text-gray-600">
+                    <p class="text-white text-lg">
                         Sistema de Simulación Curricular
                     </p>
-                    <p class="text-sm text-gray-500 mt-1">
+                    <p class="text-sm text-white mt-1">
                         Departamento de Informática y Computación
                     </p>
                 </div>
@@ -92,7 +92,7 @@
 
                     <!-- Email -->
                     <div>
-                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <label for="email" class="block text-sm font-semibold text-white mb-2">
                             Correo Electrónico
                         </label>
                         <div class="relative">
@@ -120,7 +120,7 @@
 
                     <!-- Password -->
                     <div>
-                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <label for="password" class="block text-sm font-semibold text-white mb-2">
                             Contraseña
                         </label>
                         <div class="relative">
@@ -152,7 +152,7 @@
                             name="remember"
                             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
                         >
-                        <label for="remember_me" class="ml-2 block text-sm text-gray-700 cursor-pointer select-none">
+                        <label for="remember_me" class="ml-2 block text-sm text-white cursor-pointer select-none">
                             Recordar sesión
                         </label>
                     </div>
@@ -175,10 +175,10 @@
 
                 <!-- Footer -->
                 <div class="mt-6 text-center">
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-white">
                         Universidad Nacional de Colombia Sede Manizales
                     </p>
-                    <p class="text-xs text-gray-400 mt-1">
+                    <p class="text-xs text-white">
                         © 2026 - Sistema de Convalidaciones Curriculares
                     </p>
                 </div>
