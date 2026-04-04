@@ -8,14 +8,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Creates the subjects table which stores the original UNAL curriculum subjects.
      * This table contains all subjects from the current Systems Engineering program.
      */
     public function up(): void
     {
         Schema::create('subjects', function (Blueprint $table) {
-            $table->string('code', 10)->primary()->comment('Unique subject code - Primary key');
+            $table->string('code', 20)->primary()->comment('Unique subject code - Primary key');
             $table->string('name')->comment('Full name of the subject');
             $table->integer('semester')->comment('Semester number where the subject is normally taken (1-10)');
             $table->integer('display_order')->default(0)->comment('Display order within the semester for UI presentation');
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->boolean('is_required')->default(true)->comment('Whether the subject is required (true) or elective (false)');
             $table->boolean('is_leveling')->default(false)->comment('Whether this is a leveling subject (true) or counts toward career credits (false)');
             $table->timestamps();
-            
+
             // Indexes for performance optimization
             $table->index(['semester', 'display_order']);
         });
@@ -36,7 +36,7 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     * 
+     *
      * Drops the subjects table.
      */
     public function down(): void

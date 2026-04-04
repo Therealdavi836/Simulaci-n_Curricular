@@ -181,7 +181,12 @@
             @php
                 $subjects = $currentProgram
                     ? \App\Models\Subject::with(['prerequisites', 'requiredFor'])
-                        ->where('program_id', session('program_id'))
+                        ->whereExists(function($query) {
+                            $query->select(\Illuminate\Support\Facades\DB::raw(1))
+                                ->from('program_subjects')
+                                ->whereColumn('program_subjects.subject_code', 'subjects.code')
+                                ->where('program_subjects.program_id', session('program_id'));
+                        })
                         ->orderBy('semester')
                         ->orderBy('display_order')
                         ->get()

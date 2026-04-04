@@ -49,10 +49,24 @@ class SimulationController extends Controller
             : null;
 
         $programStats = $currentProgram ? [
-            'total_subjects' => \App\Models\Subject::where('program_id', $currentProgram->id)->count(),
-            'career_credits' => \App\Models\Subject::where('program_id', $currentProgram->id)
-                                    ->where('type', '!=', 'nivelacion')->sum('credits'),
-            'total_credits'  => \App\Models\Subject::where('program_id', $currentProgram->id)->sum('credits'),
+            'total_subjects' => \App\Models\Subject::whereExists(function($query) use ($currentProgram) {
+                                    $query->select(\Illuminate\Support\Facades\DB::raw(1))
+                                        ->from('program_subjects')
+                                        ->whereColumn('program_subjects.subject_code', 'subjects.code')
+                                        ->where('program_subjects.program_id', $currentProgram->id);
+                                })->count(),
+            'career_credits' => \App\Models\Subject::whereExists(function($query) use ($currentProgram) {
+                                    $query->select(\Illuminate\Support\Facades\DB::raw(1))
+                                        ->from('program_subjects')
+                                        ->whereColumn('program_subjects.subject_code', 'subjects.code')
+                                        ->where('program_subjects.program_id', $currentProgram->id);
+                                })->where('type', '!=', 'nivelacion')->sum('credits'),
+            'total_credits'  => \App\Models\Subject::whereExists(function($query) use ($currentProgram) {
+                                    $query->select(\Illuminate\Support\Facades\DB::raw(1))
+                                        ->from('program_subjects')
+                                        ->whereColumn('program_subjects.subject_code', 'subjects.code')
+                                        ->where('program_subjects.program_id', $currentProgram->id);
+                                })->sum('credits'),
         ] : [
             'total_subjects' => 0,
             'career_credits' => 0,
