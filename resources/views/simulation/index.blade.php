@@ -7,7 +7,7 @@
 @section('content')
 <div class="container-fluid">
     <h1 class="main-title" style="font-family: 'AncizarSans', sans-serif; font-size: 24px; font-weight: bold;">
-        Malla Curricular -- {{ session('program_name', 'Administración de Sistemas Informáticos') }}
+        Malla Curricular{{ $currentProgram ? ' — ' . session('program_name', $currentProgram->name) : '' }}
         <small class="d-block fs-6 text-muted fw-normal mt-1">
             {{ session('campus_name') }}{{ session('faculty_name') ? ' · ' . session('faculty_name') : '' }}
         </small>
@@ -179,19 +179,20 @@
         <!-- Curriculum Grid -->
         <div class="curriculum-grid">
             @php
-                $subjects = \App\Models\Subject::with(['prerequisites', 'requiredFor'])
-                    ->where('program_id', session('program_id', $currentProgram->Id))
-                    ->orderBy('semester')
-                    ->orderBy('display_order')
-                    ->get();
+                $subjects = $currentProgram
+                    ? \App\Models\Subject::with(['prerequisites', 'requiredFor'])
+                        ->where('program_id', session('program_id'))
+                        ->orderBy('semester')
+                        ->orderBy('display_order')
+                        ->get()
+                    : collect();
 
-                // Also load all leveling subjects (no is_active column - all subjects are recognized)
                 $levelingSubjects = \App\Models\LevelingSubject::all();
-
                 $subjectsBySemester = $subjects->groupBy('semester');
+                $totalSemesters = $currentProgram ? $currentProgram->total_semesters : 10;
             @endphp
 
-            @for ($semester = 1; $semester <= $currentProgram->total_semesters; $semester++)
+            @for ($semester = 1; $semester <= $totalSemesters; $semester++)
                 <div class="semester-column" data-semester="{{ $semester }}">
                     <div class="semester-title">{{ $semester }}° Semestre</div>
                     <div class="subjects-container subject-list">

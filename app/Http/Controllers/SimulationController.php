@@ -46,21 +46,24 @@ class SimulationController extends Controller
 
         $currentProgram = $programId
             ? \App\Models\Program::where('is_active', true)->findOrFail($programId)
-            : \App\Models\Program::where('is_active', true)->firstOrFail();
+            : null;
 
-        $programStats = [
+        $programStats = $currentProgram ? [
             'total_subjects' => \App\Models\Subject::where('program_id', $currentProgram->id)->count(),
             'career_credits' => \App\Models\Subject::where('program_id', $currentProgram->id)
                                     ->where('type', '!=', 'nivelacion')->sum('credits'),
             'total_credits'  => \App\Models\Subject::where('program_id', $currentProgram->id)->sum('credits'),
+        ] : [
+            'total_subjects' => 0,
+            'career_credits' => 0,
+            'total_credits'  => 0,
         ];
 
         $levelingSubjects = \App\Models\LevelingSubject::all();
 
         return view('simulation.index', compact('currentProgram', 'programStats', 'levelingSubjects'));
     }
-
-    /**
+        /**
      * Analyze the impact of curriculum changes on students
      */
     public function analyzeImpact(Request $request)
