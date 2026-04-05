@@ -178,18 +178,24 @@
 
         <!-- Curriculum Grid -->
         <div class="curriculum-grid">
-            @php
+           @php
                 $subjects = $currentProgram
                     ? \App\Models\Subject::with(['prerequisites', 'requiredFor'])
-                        ->whereExists(function($query) {
-                            $query->select(\Illuminate\Support\Facades\DB::raw(1))
-                                ->from('program_subjects')
-                                ->whereColumn('program_subjects.subject_code', 'subjects.code')
-                                ->where('program_subjects.program_id', session('program_id'));
+                        ->select('subjects.*',
+                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.semester, subjects.semester) as effective_semester'),
+                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.display_order, subjects.display_order) as effective_display_order')
+                        )
+                        ->join('program_subjects as ps', function($join) {
+                            $join->on('ps.subject_code', '=', 'subjects.code')
+                                ->where('ps.program_id', session('program_id'));
                         })
-                        ->orderBy('semester')
-                        ->orderBy('display_order')
+                        ->orderBy('effective_semester')
+                        ->orderBy('effective_display_order')
                         ->get()
+                        ->each(function($subject) {
+                            $subject->semester = $subject->effective_semester;
+                            $subject->display_order = $subject->effective_display_order;
+                        })
                     : collect();
 
                 $levelingSubjects = \App\Models\LevelingSubject::all();

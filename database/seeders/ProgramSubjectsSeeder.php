@@ -18,6 +18,10 @@ class ProgramSubjectsSeeder extends Seeder
             return;
         }
 
+        // Limpiar para re-seed limpio
+        DB::table('program_subjects')->whereIn('program_id', [$asi->id, $admon->id])->delete();
+
+        // ASI — todos sin override de semestre
         $codesASI = [
             '4200910','1000004','4100538','4100543','#LIBRE-01',
             '4100548','4200919','1000005','4100539','#LIBRE-02','1000044',
@@ -30,12 +34,14 @@ class ProgramSubjectsSeeder extends Seeder
             '4200921','4100563','4100565','#OPTDIS-03','#LIBRE-08','#LIBRE-09',
             '4100573','4100559','#LIBRE-10','#LIBRE-11',
         ];
+        $this->insertPlain($asi->id, $codesASI);
 
+        // ADMON — códigos sin override
         $codesADMON = [
             '1000004','4100645','4100622','4100646','#LIBRE-01',
             '1000005','4100623','4100618','4100642','1000044',
-            '4100630','4100617','4100539','4100643','1000045',
-            '4100578','4100614','4100631','4100580','1000046',
+            '4100630','4100617','4100643','1000045',
+            '4100614','4100631','4100580','1000046',
             '4100629','4100579','4100615','4100628','#OPTDIS-01-ADMON','1000047',
             '4100621','4100641','4100683','#OPTDIS-02-ADMON','#LIBRE-02-ADMON',
             '4100636','4100550','4100634','4100635','4100626','#LIBRE-03-ADMON',
@@ -43,26 +49,50 @@ class ProgramSubjectsSeeder extends Seeder
             '4100649','4100632','#LIBRE-05-ADMON','#LIBRE-06-ADMON',
             '4100633','#OPTDIS-04-ADMON','#LIBRE-07-ADMON','#LIBRE-08-ADMON',
         ];
+        $this->insertPlain($admon->id, $codesADMON);
 
-        // Limpiar para re-seed limpio
-        DB::table('program_subjects')->whereIn('program_id', [$asi->id, $admon->id])->delete();
-
-        $this->insertForProgram($asi->id, $codesASI);
-        $this->insertForProgram($admon->id, $codesADMON);
+        // ADMON — overrides de semestre para materias compartidas
+        $overridesADMON = [
+            ['code' => '4100539', 'semester' => 3, 'display_order' => 3],
+            ['code' => '4100578', 'semester' => 4, 'display_order' => 4],
+        ];
+        $this->insertOverrides($admon->id, $overridesADMON);
 
         $this->command->info("program_subjects poblado para ASI y ADMON.");
     }
 
-    private function insertForProgram(int $programId, array $codes): void
+    private function insertPlain(int $programId, array $codes): void
     {
         foreach ($codes as $code) {
             $exists = DB::table('subjects')->where('code', $code)->exists();
-            if (!$exists) {
-                continue;
-            }
+            if (!$exists) continue;
+
             DB::table('program_subjects')->updateOrInsert(
                 ['program_id' => $programId, 'subject_code' => $code],
-                ['created_at' => now(), 'updated_at' => now()]
+                [
+                    'semester'      => null,
+                    'display_order' => null,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]
+            );
+        }
+    }
+
+    private function insertOverrides(int $programId, array $overrides): void
+    {
+        foreach ($overrides as $item) {
+            $exists = DB::table('subjects')->where('code', $item['code'])->exists();
+            if (!$exists) continue;
+
+            DB::table('program_subjects')->updateOrInsert(
+                ['program_id' => $programId, 'subject_code' => $item['code']],
+                [
+                    'semester'      => $item['semester'],
+                    'display_order' => $item['display_order'] ?? null,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]
             );
         }
     }
