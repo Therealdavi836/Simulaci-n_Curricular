@@ -53,8 +53,9 @@ class ProgramSubjectsSeeder extends Seeder
 
         // ADMON — overrides de semestre para materias compartidas
         $overridesADMON = [
-            ['code' => '4100539', 'semester' => 3, 'display_order' => 3],
+            ['code' => '4100539', 'semester' => 3, 'display_order' => 3, 'type' => 'profesional'],
             ['code' => '4100578', 'semester' => 4, 'display_order' => 4],
+            ['code' => '4100550', 'semester' => 7, 'display_order' => 7],
         ];
         $this->insertOverrides($admon->id, $overridesADMON);
 
@@ -88,8 +89,10 @@ class ProgramSubjectsSeeder extends Seeder
             DB::table('program_subjects')->updateOrInsert(
                 ['program_id' => $programId, 'subject_code' => $item['code']],
                 [
-                    'semester'      => $item['semester'],
+                    'semester'      => $item['semester'] ?? null,
                     'display_order' => $item['display_order'] ?? null,
+                    'type'          => $item['type'] ?? null,
+                    'is_required'   => $item['is_required'] ?? null,
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ]

@@ -183,7 +183,9 @@
                     ? \App\Models\Subject::with(['prerequisites', 'requiredFor'])
                         ->select('subjects.*',
                             \Illuminate\Support\Facades\DB::raw('COALESCE(ps.semester, subjects.semester) as effective_semester'),
-                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.display_order, subjects.display_order) as effective_display_order')
+                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.display_order, subjects.display_order) as effective_display_order'),
+                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.type, subjects.type) as effective_type'),
+                            \Illuminate\Support\Facades\DB::raw('COALESCE(ps.is_required, subjects.is_required) as effective_is_required')
                         )
                         ->join('program_subjects as ps', function($join) {
                             $join->on('ps.subject_code', '=', 'subjects.code')
@@ -193,8 +195,10 @@
                         ->orderBy('effective_display_order')
                         ->get()
                         ->each(function($subject) {
-                            $subject->semester = $subject->effective_semester;
+                            $subject->semester    = $subject->effective_semester;
                             $subject->display_order = $subject->effective_display_order;
+                            $subject->type        = $subject->effective_type;
+                            $subject->is_required = (bool) $subject->effective_is_required;
                         })
                     : collect();
 

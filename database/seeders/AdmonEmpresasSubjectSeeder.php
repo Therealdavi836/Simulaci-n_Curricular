@@ -41,6 +41,7 @@ class AdmonEmpresasSubjectSeeder extends Seeder
 
             // Semestre 5
             ['code' => '4100629', 'name' => 'MARKETING',                                      'semester' => 5,  'credits' => 3, 'classroom_hours' => 4, 'student_hours' => 5,  'type' => 'profesional',         'is_required' => true,  'is_leveling' => false],
+            ['code' => '4100579', 'name' => 'ESTADÍSTICA II',                                 'semester' => 5,  'credits' => 3, 'classroom_hours' => 4, 'student_hours' => 5,  'type' => 'fundamental',         'is_required' => true,  'is_leveling' => false],
             ['code' => '4100615', 'name' => 'ADMINISTRACIÓN FINANCIERA II',                   'semester' => 5,  'credits' => 4, 'classroom_hours' => 4, 'student_hours' => 8,  'type' => 'profesional',         'is_required' => true,  'is_leveling' => false],
             ['code' => '4100628', 'name' => 'MACROECONOMÍA',                                  'semester' => 5,  'credits' => 2, 'classroom_hours' => 4, 'student_hours' => 2,  'type' => 'profesional',         'is_required' => true,  'is_leveling' => false],
             ['code' => '#OPTDIS-01-ADMON', 'name' => 'ASIGNATURA OPTATIVA DISCIPLINAR',       'semester' => 5,  'credits' => 3, 'classroom_hours' => 4, 'student_hours' => 5,  'type' => 'optativa_profesional', 'is_required' => false, 'is_leveling' => false],
@@ -80,7 +81,7 @@ class AdmonEmpresasSubjectSeeder extends Seeder
         ];
 
         // Las compartidas con ASI se registran con program_id = null (ya existen o se crean sin dueño)
-        $shared = ['1000004', '1000005', '1000044', '1000045', '1000046', '1000047', '4100539', '4100578', '4100550'];
+        $shared = ['1000004', '1000005', '1000044', '1000045', '1000046', '1000047', '4100539', '4100578', '4100579', '4100550'];
 
         // Insertar materias exclusivas de ADMON
         foreach ($subjects as $index => $subject) {
